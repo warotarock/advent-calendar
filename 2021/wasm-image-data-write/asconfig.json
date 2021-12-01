@@ -1,0 +1,16 @@
+{
+  "targets": {
+    "debug": {
+      "binaryFile": "build/untouched.wasm",
+      "textFile": "build/untouched.wat",
+      "sourceMap": true,
+      "debug": true
+    },
+    "release": {
+      "binaryFile": "www/optimized.wasm",
+      "optimizeLevel": 3,
+      "converge": false
+    }
+  },
+  "options": {}
+}

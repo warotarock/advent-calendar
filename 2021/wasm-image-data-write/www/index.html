@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <title>HTML/Canvas ImageDataのバイトデータ操作による描画（AssemblyScript版）</title>
+    <script src="https://cdn.jsdelivr.net/npm/@assemblyscript/loader/umd/index.js"></script>
+    <style>
+      canvas {
+        border: solid 1px #000;
+        width: 1200px;
+        height: 800px;
+      }
+    </style>
+    <script>
+window.onload = () => {
+
+  const canvas = document.getElementById('canvas')
+  canvas.width = 1200
+  canvas.height = 800
+
+  const ctx = canvas.getContext('2d')
+
+  let time = 0.0
+  let running = false
+  let drawMode = 1
+  let wasmRender = null
+  let js_ImageData = null
+  let wasm_ImageData = null
+  let data = null
+  let imageDataArrayPtr = null
+  let imageDataArrayView = null
+  let viewArray = null
+
+  function initializeWasmRender(wasmModule) {
+
+    // AssemblyScriptで実装した関数が登録されたオブジェクトを取得
+    wasmRender = wasmModule.exports
+
+    // WebAssembly内に画像用メモリを作成
+    const dataLength = canvas.width * canvas.height * 4
+    imageDataArrayPtr = wasmRender.__newArray(wasmRender.Uint8ArrayID, dataLength)
+    wasmRender.__pin(imageDataArrayPtr) // GCで開放されないように設定
+
+    // 画像用メモリをImageDataのバッファとして設定
+    imageDataArrayView = wasmRender.__getArrayView(imageDataArrayPtr)
+    viewArray = new Uint8ClampedArray(wasmRender.memory.buffer, imageDataArrayView.byteOffset, dataLength) // Uint8ClampedArrayにバッファを渡すことでメモリを参照するTypedArrayが作成されます
+    wasm_ImageData = new ImageData(viewArray, canvas.width, canvas.height) // ImageDataにUint8ClampedArraを渡すことでバッファを参照するImageDataが作成されます
+  }
+
+  js_ImageData = new ImageData(canvas.width, canvas.height)
+  data = js_ImageData.data
+  function putPixel(offset, r, g, b, a) {
+
+    data[offset + 0] = r
+    data[offset + 1] = g
+    data[offset + 2] = b
+    data[offset + 3] = a
+  }
+
+  function render() {
+
+    if (!wasmRender) {
+      return
+    }
+
+    if (drawMode == 1) {
+      
+      wasmRender.drawViaFunction(canvas.width, canvas.height, time)
+
+      ctx.putImageData(js_ImageData, 0, 0)
+    }
+    else {
+
+      wasmRender.drawToByteArray(imageDataArrayPtr, canvas.width, canvas.height, time)
+
+      ctx.putImageData(wasm_ImageData, 0, 0)
+    }
+
+    time += 0.1
+
+    if (running) {
+
+      requestAnimationFrame(render);
+    }
+  }
+
+  document.getElementById('drawViaFunction').onclick = () => {
+
+    if (!running) {
+      running = true
+      drawMode = 1
+      requestAnimationFrame(render);
+    }
+    else if (drawMode == 2) {
+      drawMode = 1
+    }
+    else {
+      running = false
+    }
+  }
+
+  document.getElementById('drawToByteArray').onclick = () => {
+
+    if (!running) {
+      running = true
+      drawMode = 2
+      requestAnimationFrame(render);
+    }
+    else if (drawMode == 1) {
+      drawMode = 2
+    }
+    else {
+      running = false
+    }
+  }
+
+  loader.instantiateStreaming(fetch("optimized.wasm"), {
+      'index': {
+        'main.putPixel': putPixel
+      }
+    })
+    .then((wasmModule) => {
+      initializeWasmRender(wasmModule)
+      running = true
+      requestAnimationFrame(render);
+    });
+}
+    </script>
+  </head>
+  <body>
+    <nav>
+      <a href="http://">Webグラフィックス Advent calendar 2021 11日目</a>
+    </nav>
+    <h1>
+      HTML/Canvas ImageDataのバイトデータ操作による描画（AssemblyScript版）
+    </h1>
+    <p>作成者：柏崎ワロタロ<br>
+    Original GLSL from <a href="https://glslsandbox.com/e#76927.0">glslsandbox.com/e#76927.0</a></p>
+    <canvas id="canvas"></canvas>
+    <br>
+    <button id="drawViaFunction">JavaScript関数経由で描画 実行/停止</button>
+    <button id="drawToByteArray">メモリ共有で描画 実行/停止</button>
+  </body>
+</html>

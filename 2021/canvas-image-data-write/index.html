@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <title>HTML/Canvas ImageDataのバイトデータ操作による描画（JavaScript版）</title>
+    <style>
+      canvas {
+        border: solid 1px #000;
+        width: 1200px;
+        height: 800px;
+      }
+    </style>
+    <script>
+window.onload = () => {
+
+  const canvas = document.getElementById('canvas')
+  canvas.width = 1200
+  canvas.height = 800
+
+  const ctx = canvas.getContext('2d')
+
+  let time = 0.0
+  let running = false
+
+  const imageData = ctx.createImageData(canvas.width, canvas.height)
+
+  function draw() {
+
+    const data = imageData.data
+    const pixelBytes = 4
+    const lineBytes = canvas.width * pixelBytes
+    const density = 0.05
+    const amplitude = 0.3
+    const frequency = 10.0
+    const scroll = 0.1
+    const fwidth = canvas.width
+    const fheight = canvas.height
+    const abs = Math.abs
+    const sin = Math.sin
+
+    let offsetY = 0
+
+    for (let y = 0; y < canvas.height; y++) {
+
+      const posy = y / fheight - 0.5
+      let offset = offsetY
+
+      for (let x = 0; x < canvas.width; x++) {
+
+        const posx = x / fwidth - 0.5
+
+        // from https://glslsandbox.com/e#76927.0
+        const line1 = (1.0 / abs((posy + (amplitude * sin((posx + time * scroll) * frequency)))) * density) * 255
+        const line2 = (1.0 / abs((posy + (amplitude * sin(((posx - 0.1) + time * scroll) * frequency)))) * density) * 255
+        const line3 = (1.0 / abs((posy + (amplitude * sin(((posx - 0.2) + time * scroll) * frequency)))) * density) * 255
+
+        data[offset + 0] = 0.10 * line1 + 0.05 * line2 + 0.05 * line3
+        data[offset + 1] = 0.05 * line1 + 0.10 * line2 + 0.05 * line3
+        data[offset + 2] = 0.05 * line1 + 0.05 * line2 + 0.10 * line3
+        data[offset + 3] = 255
+
+        offset += pixelBytes
+      }
+
+      offsetY += lineBytes
+    }
+  }
+
+  function render() {
+
+    draw()
+
+    ctx.putImageData(imageData, 0, 0)
+
+    time += 0.1
+
+    if (running) {
+
+      requestAnimationFrame(render);
+    }
+  }
+
+  document.getElementById('execute').onclick = () => {
+
+    if (running) {
+      running = false
+    }
+    else {
+      running = true
+      requestAnimationFrame(render);
+    }
+  }
+
+  running = true
+  requestAnimationFrame(render);
+}
+    </script>
+  </head>
+  <body>
+    <nav>
+      <a href="http://">Webグラフィックス Advent calendar 2021 11日目</a>
+    </nav>
+    <h1>
+      HTML/Canvas ImageDataのバイトデータ操作による描画（JavaScript版）
+    </h1>
+    <p>作成者：柏崎ワロタロ<br>
+    Original GLSL from <a href="https://glslsandbox.com/e#76927.0">glslsandbox.com/e#76927.0</a></p>
+    <canvas id="canvas"></canvas>
+    <br>
+    <button id="execute">実行/停止</button>
+  </body>
+</html>
