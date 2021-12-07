@@ -457,10 +457,10 @@ export function draw(data: Uint8Array, width: u32, height: u32): void {
   const regionInfo = createRegionInfo(width, height)
 
   resetRegionInfo(regionInfo)
-  beginPath(regionInfo, 50, 50)
-  lineTo(regionInfo, 80, 50)
-  lineTo(regionInfo, 80, 80)
-  lineTo(regionInfo, 50, 80)
+  beginPath(regionInfo, 5, 1)
+  lineTo(regionInfo, 8, 2)
+  lineTo(regionInfo, 5, 5)
+  lineTo(regionInfo, 2, 2)
   closePath(regionInfo)
   rasterizeRegionFill(data, regionInfo)
 
