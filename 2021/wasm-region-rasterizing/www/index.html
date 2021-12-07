@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <title>HTML/Canvas ImageDataのバイトデータ操作による領域塗りつぶし（AssemblyScript版）</title>
+    <script src="https://cdn.jsdelivr.net/npm/@assemblyscript/loader/umd/index.js"></script>
+    <style>
+      canvas {
+        border: solid 1px #000;
+        width: 800px;
+        height: 600px;
+        image-rendering: pixelated;
+      }
+    </style>
+    <script>
+window.onload = () => {
+
+  const canvas = document.getElementById('canvas')
+  canvas.width = 400
+  canvas.height = 300
+
+  const ctx = canvas.getContext('2d')
+
+  let running = false
+  let wasmRender = null
+  let imageData = null
+  let imageDataArrayPtr = null
+  let imageDataArrayView = null
+
+  function initializeWasmRender(wasmModule) {
+
+    // AssemblyScriptで実装した関数が登録されたオブジェクトを取得
+    wasmRender = wasmModule.exports
+
+    // WebAssembly内に画像用メモリを作成
+    const dataLength = canvas.width * canvas.height * 4
+    imageDataArrayPtr = wasmRender.__newArray(wasmRender.Uint8ArrayID, dataLength)
+    wasmRender.__pin(imageDataArrayPtr) // GCで開放されないように設定
+
+    // 画像用メモリをImageDataのバッファとして設定
+    const imageDataArrayView = wasmRender.__getArrayView(imageDataArrayPtr)
+    const viewOffset = imageDataArrayView.byteOffset // メモリ内のオフセットを取得（メモリ操作やGCで配置が変わる可能性があるため、そのつど再取得する必要があるらしいです）
+    const viewArray = new Uint8ClampedArray(wasmRender.memory.buffer, viewOffset, dataLength) // Uint8ClampedArrayにバッファを渡すことでメモリを参照するTypedArrayが作成されます
+    imageData = new ImageData(viewArray, canvas.width, canvas.height) // ImageDataにUint8ClampedArraを渡すことでバッファを参照するImageDataが作成されます
+  }
+
+  function draw() {
+
+    wasmRender.draw(imageDataArrayPtr, canvas.width, canvas.height)
+
+    ctx.putImageData(imageData, 0, 0)
+  }
+
+  document.getElementById('execute').onclick = () => {
+
+    if (!wasmRender) {
+      return
+    }
+
+    draw()
+  }
+
+  loader.instantiateStreaming(fetch("optimized.wasm"), {})
+    .then((wasmModule) => {
+
+      initializeWasmRender(wasmModule)
+
+      draw()
+    });
+}
+    </script>
+  </head>
+  <body>
+    <nav>
+      <a href="http://">Webグラフィックス Advent calendar 2021 7日目</a>
+    </nav>
+    <h1>
+      HTML/Canvas ImageDataのバイトデータ操作による領域塗りつぶし（AssemblyScript版）
+    </h1>
+    <p>作成者：柏崎ワロタロ</p>
+    <canvas id="canvas"></canvas>
+    <br>
+    <button id="execute">再実行</button>
+  </body>
+</html>

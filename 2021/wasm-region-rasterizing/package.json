@@ -1,0 +1,23 @@
+{
+  "name": "shape-render",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "asbuild:untouched": "asc assembly/index.ts --exportRuntime --transform as-bind --target debug",
+    "asbuild:optimized": "asc assembly/index.ts --exportRuntime --transform as-bind --target release",
+    "asbuild": "npm run asbuild:untouched && npm run asbuild:optimized",
+    "test": "node tests",
+    "run http-server": "npx http-server ./www"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@assemblyscript/loader": "^0.19.19",
+    "as-bind": "^0.8.2"
+  },
+  "devDependencies": {
+    "assemblyscript": "^0.19.19",
+    "http-server": "^14.0.0"
+  }
+}
