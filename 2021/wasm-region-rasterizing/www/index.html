@@ -22,9 +22,10 @@ window.onload = () => {
 
   let running = false
   let wasmRender = null
-  let imageData = null
+  let wasm_ImageData = null
   let imageDataArrayPtr = null
   let imageDataArrayView = null
+  let viewArray = null
 
   function initializeWasmRender(wasmModule) {
 
@@ -37,17 +38,16 @@ window.onload = () => {
     wasmRender.__pin(imageDataArrayPtr) // GCで開放されないように設定
 
     // 画像用メモリをImageDataのバッファとして設定
-    const imageDataArrayView = wasmRender.__getArrayView(imageDataArrayPtr)
-    const viewOffset = imageDataArrayView.byteOffset // メモリ内のオフセットを取得（メモリ操作やGCで配置が変わる可能性があるため、そのつど再取得する必要があるらしいです）
-    const viewArray = new Uint8ClampedArray(wasmRender.memory.buffer, viewOffset, dataLength) // Uint8ClampedArrayにバッファを渡すことでメモリを参照するTypedArrayが作成されます
-    imageData = new ImageData(viewArray, canvas.width, canvas.height) // ImageDataにUint8ClampedArraを渡すことでバッファを参照するImageDataが作成されます
+    imageDataArrayView = wasmRender.__getArrayView(imageDataArrayPtr)
+    viewArray = new Uint8ClampedArray(wasmRender.memory.buffer, imageDataArrayView.byteOffset, dataLength) // Uint8ClampedArrayにバッファを渡すことでメモリを参照するTypedArrayが作成されます
+    wasm_ImageData = new ImageData(viewArray, canvas.width, canvas.height) // ImageDataにUint8ClampedArraを渡すことでバッファを参照するImageDataが作成されます
   }
 
   function draw() {
 
     wasmRender.draw(imageDataArrayPtr, canvas.width, canvas.height)
 
-    ctx.putImageData(imageData, 0, 0)
+    ctx.putImageData(wasm_ImageData, 0, 0)
   }
 
   document.getElementById('execute').onclick = () => {
