@@ -2,7 +2,7 @@
 
 ## はじめに
 
-これは[キーボードアドベントカレンダー](https://adventar.org/calendars/6496)１２日目の記事です。
+これは[キーボード Advent Calendar 2021](https://adventar.org/calendars/6496)１２日目の記事です。
 
 はじめまして。柏崎ワロタロと申します。
 キーボードのアドベントカレンダー初参加です。
