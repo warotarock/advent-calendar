@@ -167,6 +167,8 @@ SRKB02のときより掘りを深くしてあります。
 
 ということで（どういうことだ）、筆者に今できることとして3DCGで作ってみました。Blender/Cyclesです。
 
+[![夢のキーボード1](my-dream-keyboard000_s.jpg)](my-dream-keyboard000.jpg)
+
 [![夢のキーボード1](my-dream-keyboard001_s.jpg)](my-dream-keyboard001.jpg)
 
 [![夢のキーボード2](my-dream-keyboard002_s.jpg)](my-dream-keyboard002.jpg)
