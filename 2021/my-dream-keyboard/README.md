@@ -201,8 +201,4 @@ SRKB02のときより掘りを深くしてあります。
 ということで、キーボードアドベントカレンダー１２日目でした。
 ご覧いただきありがとうございました！
 
-（この記事は改造TK-GMFCM006二枚で書きました）
-
-# おまけ
-
-[母音JK配列](https://warotarokz.sakura.ne.jp/experimental/boin-jk/)という日本語入力配列を配布しています。よろしかったらどうぞ。
+（この記事は改造TK-GMFCM006二枚と[母音JK配列](https://warotarokz.sakura.ne.jp/experimental/boin-jk/)で書きました）
