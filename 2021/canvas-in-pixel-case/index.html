@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <title>HTML/Canvas １ピクセル内のアンチエイリアス処理の実験</title>
+    <style>
+      canvas {
+        border: solid 1px #000;
+        width: 1000px;
+        height: 200px;
+        image-rendering: pixelated;
+      }
+      ul {
+        list-style: none;
+      }
+    </style>
+    <script>
+window.onload = () => {
+
+  const canvas = document.getElementById('canvas')
+  canvas.width = 100
+  canvas.height = 20
+
+  const ctx = canvas.getContext('2d')
+
+  let time = 0.0
+  let running = false
+
+  function draw() {
+
+    // ピクセルに完全に納まる直線
+    ctx.strokeStyle = 'red'
+    ctx.lineWidth = 0.2
+    ctx.beginPath()
+    ctx.moveTo(10.30, 10.30)
+    ctx.lineTo(10.70, 10.70)
+    ctx.stroke()
+
+    // ピクセルに完全に納まる中央位置のひし形塗りつぶし
+    ctx.fillStyle = 'red'
+    ctx.beginPath()
+    ctx.moveTo(20.50, 10.30)
+    ctx.lineTo(20.70, 10.50)
+    ctx.lineTo(20.50, 10.70)
+    ctx.lineTo(20.30, 10.50)
+    ctx.fill()
+
+    // ピクセルに完全に納まる左に寄ったひし形塗りつぶし
+    ctx.beginPath()
+    ctx.moveTo(30.20, 10.30)
+    ctx.lineTo(30.40, 10.50)
+    ctx.lineTo(30.20, 10.70)
+    ctx.lineTo(30.00, 10.50)
+    ctx.fill()
+
+    // ピクセルの横境界をまたいだひし形塗りつぶし
+    ctx.beginPath()
+    ctx.moveTo(40.00, 10.30)
+    ctx.lineTo(40.20, 10.50)
+    ctx.lineTo(40.00, 10.70)
+    ctx.lineTo(39.80, 10.50)
+    ctx.fill()
+
+    // ピクセルの角を中心として四つのピクセルをまたいだひし形塗りつぶし
+    ctx.beginPath()
+    ctx.moveTo(50.00,  9.80)
+    ctx.lineTo(50.20, 10.00)
+    ctx.lineTo(50.00, 10.20)
+    ctx.lineTo(49.80, 10.00)
+    ctx.fill()
+  }
+
+  document.getElementById('execute').onclick = () => {
+
+    draw()
+  }
+
+  draw()
+}
+    </script>
+  </head>
+  <body>
+    <nav>
+      <a href="http://">Webグラフィックス Advent calendar 2021 23日目</a>
+    </nav>
+    <h1>
+      HTML/Canvas １ピクセル内のアンチエイリアス処理の実験
+    </h1>
+    <p>作成者：柏崎ワロタロ</p>
+    <ul>
+      <li>A. ピクセルに完全に納まる直線（一番左）</li>
+      <li>B. ピクセルに完全に納まる中央位置のひし形塗りつぶし</li>
+      <li>C. ピクセルの左に接したひし形塗りつぶし</li>
+      <li>D. ピクセルの横境界をまたいだひし形塗りつぶし</li>
+      <li>E. ピクセルの角を中心として四つのピクセルをまたいだひし形塗りつぶし（Chrome96は描画されず、FireFox94ではうっすら出ました）</li>
+    </ul>
+    <canvas id="canvas"></canvas>
+    <br>
+    <button id="execute">再実行</button>
+  </body>
+</html>
