@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Canvas2D 円形グラデーションの組み合わせによる複雑な画像の描画</title>
+    <style>
+      body {
+        background-color: #000;
+        color: #888;
+      }
+
+      a {
+        color: #88f;
+      }
+
+      canvas {
+        border: solid 1px #888;
+        width: 800px;
+        height: 800px;
+        image-rendering: pixelated;
+      }
+
+      .inputs input[type=range] {
+        width: 30rem;
+      }
+
+      .inputs > div {
+        margin-block-start: 1rem;
+        padding-left: 1rem;
+      }
+
+      .inputs span {
+        display: inline-block;
+        width: 8rem;
+      }
+    </style>
+    <script src="index.js" ></script>
+</head>
+<body>
+    <nav>
+      <a href="https://qiita.com/advent-calendar/2022/webgraphics">Webグラフィックス Advent calendar 2022 7日目</a>
+    </nav>
+    <h1>Canvas2D 円形グラデーションの組み合わせによる複雑な画像の描画</h1>
+    <p>作成者：柏崎ワロタロ</p>
+    <canvas id="canvas"></canvas>
+    <div class="inputs">
+      <div>
+        <label><span>外周の分割数:</span><input type="range" id="circler-division" value="12" min="4" max="32"><span id="circler-division-text"></span></label>
+      </div>
+      <div>
+        <label><span>中心の濃さ:</span><input type="range" id="center-alpha" value="586" min="0" max="1000"><span id="center-alpha-text"></span></label>
+      </div>
+      <div>
+        <label><span>外周の濃さ:</span><input type="range" id="outer-alpha" value="240" min="0" max="1000"><span id="outer-alpha-text"></span></label>
+      </div>
+    </div>
+  </body>
+</html>

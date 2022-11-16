@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>HTML/Canvas ImageDataのバイトデータ操作による領域塗りつぶし（AssemblyScript版）</title>
+    <style>
+      canvas {
+        border: solid 1px #000;
+        width: 800px;
+        height: 600px;
+        image-rendering: pixelated;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@assemblyscript/loader/umd/index.js"></script>
+    <script>
+        window.onload = () => {
+        
+          const canvas = document.getElementById('canvas')
+          canvas.width = 400
+          canvas.height = 300
+        
+          const ctx = canvas.getContext('2d')
+        
+          let running = false
+          let wasmRender = null
+          let imageDataArrayPtr = null
+          const dataLength = canvas.width * canvas.height * 4
+        
+          function initializeWasmRender(wasmModule) {
+        
+            // AssemblyScriptで実装した関数が登録されたオブジェクトを取得
+            wasmRender = wasmModule.exports
+        
+            // WebAssembly内に画像用メモリを作成
+            imageDataArrayPtr = wasmRender.__pin(wasmRender.__newArray(wasmRender.Uint8ArrayID, dataLength)) // __pinでGCで開放されないように設定
+          }
+        
+          function draw() {
+        
+            wasmRender.draw(imageDataArrayPtr, canvas.width, canvas.height)
+
+            // 画像用メモリをImageDataのバッファとして設定
+            // FireFoxではWASM内でメモリの確保を行うとArrayViewが不正になる（"CanvasRenderingContext2D.putImageData: Invalid width or height" エラーとなる）ため
+            // ArrayViewなどを毎回取得しています
+            const imageDataArrayView = wasmRender.__getArrayView(imageDataArrayPtr)
+            const viewArray = new Uint8ClampedArray(wasmRender.memory.buffer, imageDataArrayView.byteOffset, dataLength) // Uint8ClampedArrayにバッファを渡すことでメモリを参照するTypedArrayが作成されます
+            const wasm_ImageData = new ImageData(viewArray, canvas.width, canvas.height) // ImageDataにUint8ClampedArraを渡すことでバッファを参照するImageDataが作成されます
+
+            ctx.putImageData(wasm_ImageData, 0, 0)
+          }
+        
+          document.getElementById('execute').onclick = () => {
+        
+            if (!wasmRender) {
+              return
+            }
+        
+            draw()
+          }
+        
+          loader.instantiateStreaming(fetch("./build/release.wasm"), {})
+            .then((wasmModule) => {
+        
+              initializeWasmRender(wasmModule)
+        
+              draw()
+            });
+        }
+    </script>
+</head>
+<body>
+    <nav>
+      <a href="http://">Webグラフィックス Advent calendar 2021 7日目</a>
+    </nav>
+    <h1>
+      HTML/Canvas ImageDataのバイトデータ操作による領域塗りつぶし（AssemblyScript版）
+    </h1>
+    <p>作成者：柏崎ワロタロ</p>
+    <canvas id="canvas"></canvas>
+    <br>
+    <button id="execute">再実行</button>
+  </body>
+</html>

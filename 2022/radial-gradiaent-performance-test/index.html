@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Canvas2D RadialGradientのパフォーマンス検証</title>
+    <style>
+      canvas {
+        border: solid 1px #000;
+        width: 800px;
+        height: 600px;
+        image-rendering: pixelated;
+      }
+
+      .inputs > div {
+        margin-block-start: 1rem;
+        padding-left: 1rem;
+      }
+    </style>
+    <script src="index.js" ></script>
+</head>
+<body>
+    <nav>
+      <a href="https://qiita.com/advent-calendar/2022/webgraphics">Webグラフィックス Advent calendar 2022 7日目</a>
+    </nav>
+    <h1>Canvas2D RadialGradientのパフォーマンス検証</h1>
+    <p>作成者：柏崎ワロタロ</p>
+    <canvas id="canvas"></canvas>
+    <div class="inputs">
+      <div>描画数:
+        <label><input type="radio" name="particles" value="100">100</label>
+        <label><input type="radio" name="particles" value="1000" checked>1000</label>
+        <label><input type="radio" name="particles" value="10000">1万</label>
+        <label><input type="radio" name="particles" value="100000">10万</label>
+      </div>
+      <div>サイズ:
+        <label><input type="radio" name="particle-size" value="0">2～5</label>
+        <label><input type="radio" name="particle-size" value="1" checked>5～10</label>
+        <label><input type="radio" name="particle-size" value="2">10～15</label>
+        <label><input type="radio" name="particle-size" value="3">15～30</label>
+        <label><input type="radio" name="particle-size" value="4">30～50</label>
+      </div>
+      <div>
+        <button id="clear">クリア</button>
+        <button id="generate">データ生成</button>
+        <button id="draw">描画</button>
+        <button id="gradients">RadialGradientの生成のみ実行</button>
+      </div>
+      <div id="log">ここに実行時間が表示されます。</div>
+    </div>
+  </body>
+</html>
