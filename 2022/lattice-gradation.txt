@@ -1,0 +1,51 @@
+x1 = xa1 * t + xb1
+y1 = ya1 * t + yb1
+
+x2 = xa2 * t + xb2
+y2 = ya2 * t + yb2
+
+
+y = (y2 - y1) / (x2 - x1) * (x - x1) + y1
+
+0 = (ya2 * t + yb2 - ya1 * t - yb1) / (xa2 * t + xb2 - xa1 * t - xb1) * (x - xa1 * t - xb1)   + ya1 * t + yb1 - y
+
+0 = ((ya2 - ya1) * t + yb2   - yb1) / ((xa2 - xa1) * t + xb2   - xb1) * (- xa1 * t + x - xb1) + ya1 * t + yb1 - y
+
+0 = (ya21        * t + yb21       ) / (xa21        * t + xb21       ) * ( xa1m * t +    xxb1) + ya1 * t + yb1y
+
+
+0 = (ya21 * t + yb21) * (xa1m * t + xxb1)                                        / (xa21 * t + xb21) + ya1 * t + yb1y
+
+0 = (ya21 * t * (xa1m * t + xxb1) + yb21 * (xa1m * t + xxb1))                    / (xa21 * t + xb21) + ya1 * t + yb1y
+
+0 = (ya21 * t * xa1m * t + ya21 * t * xxb1      + yb21 * xa1m * t + yb21 * xxb1) / (xa21 * t + xb21) + ya1 * t + yb1y
+
+0 = (ya21 * xa1m * t*t   + (ya21 * xxb1     +    yb21 * xa1m) * t + yb21 * xxb1) / (xa21 * t + xb21) + ya1 * t + yb1y
+
+
+0 = (    m1 * t*t     +                                    m2 * t +    m3) / (xa21 * t + xb21) + ya1 * t + yb1y
+
+0 = (    m1 * t*t     +                                    m2 * t +    m3) / (xa21 * t + xb21) + ya1 * t + yb1y
+
+0 =      m1 * t*t     +                                    m2 * t +    m3                     + (ya1 * t + yb1y) * (xa21 * t + xb21)
+
+0 = m1 * t*t + m2 * t + m3                                    + (ya1 * xa21 * t*t + (ya1 * xb21 + yb1y * xa21) * t + yb1y * xb21)
+
+0 = m1 * t*t + m2 * t + m3                                    +     ya1xa21 * t*t +                    yyaa1 * t   +        yybb
+
+0 = (m1 + ya1xa21) * t*t + (m2 + yyaa1) * t + m3 + yybb
+
+
+0 = (a * x + b - c * x - d) / (e * x + f - g * x - h) * (o - g * x - h)   + c * x + d - p
+0 = (a * t + b) / (c * t + d) * (e * t + f) + g * t + h
+0 = (a * b * t*t + (a * c + d * b) * t + d * c) / (e * t + f) + g * t + h
+
+
+h * d + f * b + (g * c + e * a) * t ^ 2 + (h * c + f * a + e * b + g * d) * t = 0
+d * c + h * f + (a * b + g * e) * t ^ 2 + (a * c + d * b + h * e + g * f) * t = 0
+
+x = (x2 - x1) * ox + x1
+y = (y2 - y1) * oy + y1
+
+
+

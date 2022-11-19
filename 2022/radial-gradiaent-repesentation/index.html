@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Canvas2D 円形グラデーションの組み合わせによる複雑な画像の描画</title>
+    <title>Canvas2D 放射形グラデーションの細分割による線画を越えない塗りの実験（微妙）</title>
     <style>
       body {
         background-color: #000;
@@ -39,18 +39,26 @@
     <nav>
       <a href="https://qiita.com/advent-calendar/2022/webgraphics">Webグラフィックス Advent calendar 2022 7日目</a>
     </nav>
-    <h1>Canvas2D 円形グラデーションの組み合わせによる複雑な画像の描画</h1>
+    <h1>Canvas2D 放射形グラデーションの細分割による線画を越えない塗りの実験（微妙）</h1>
     <p>作成者：柏崎ワロタロ</p>
     <canvas id="canvas"></canvas>
     <div class="inputs">
       <div>
-        <label><span>外周の分割数:</span><input type="range" id="circler-division" value="12" min="4" max="32"><span id="circler-division-text"></span></label>
+        <label><span>分割数:</span><input type="range" id="circler-division" value="14" min="5" max="32"><span id="circler-division-text"></span></label>
       </div>
       <div>
-        <label><span>中心の濃さ:</span><input type="range" id="center-alpha" value="586" min="0" max="1000"><span id="center-alpha-text"></span></label>
+        <label><span>中心の濃さ:</span><input type="range" id="center-alpha" value="10" min="0" max="100"><span id="center-alpha-text"></span></label>
       </div>
       <div>
-        <label><span>外周の濃さ:</span><input type="range" id="outer-alpha" value="240" min="0" max="1000"><span id="outer-alpha-text"></span></label>
+        <label><span>外周の濃さ:</span><input type="range" id="outer-alpha" value="500" min="0" max="1000"><span id="outer-alpha-text"></span></label>
+      </div>
+      <div>
+        <label><span>分割の最小半径:</span><input type="range" id="min-radius" value="15" min="5" max="30"><span id="min-radius-text"></span></label>
+      </div>
+      <div>
+        <label><span>境界線の位置:</span><input type="range" id="line-position" value="60" min="0" max="200"><span id="line-position-text"></span></label>
+      </div>
+      <div id="log">
       </div>
     </div>
   </body>

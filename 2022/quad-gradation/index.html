@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Canvas2D ４点グラデーションの実装実験</title>
+    <style>
+      body {
+        background-color: #000;
+        color: #888;
+      }
+
+      a {
+        color: #88f;
+      }
+
+      canvas {
+        border: solid 1px #888;
+        width: 800px;
+        height: 800px;
+        image-rendering: pixelated;
+      }
+
+      .inputs input[type=range] {
+        width: 30rem;
+      }
+
+      .inputs > div {
+        margin-block-start: 1rem;
+        padding-left: 1rem;
+      }
+
+      .inputs span {
+        display: inline-block;
+        min-width: 8rem;
+      }
+    </style>
+    <script src="index.js" ></script>
+</head>
+<body>
+    <nav>
+      <a href="https://qiita.com/advent-calendar/2022/webgraphics">Webグラフィックス Advent calendar 2022 7日目</a>
+    </nav>
+    <h1>Canvas2D ４点グラデーションの実装実験</h1>
+    <p>作成者：柏崎ワロタロ</p>
+    <canvas id="canvas"></canvas>
+    <div class="inputs">
+      <div>
+        <label><span>入力座標:</span><span id="input-text"></span></label>
+      </div>
+      <div>
+        <label><span>ローカル座標:</span><span id="result-text"></span></label>
+      </div>
+      <div id="log">
+      </div>
+    </div>
+  </body>
+</html>
