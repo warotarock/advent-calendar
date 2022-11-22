@@ -19,15 +19,28 @@ window.onload = () => {
 
   const ctx = canvas.getContext('2d', { antiAliasingEnabled: false })
   const imageData = ctx.createImageData(canvas.width, canvas.height)
+  const canvasWidth = canvas.width
+  const canvasHeight = canvas.height
   const pixelBytes = 4
   const lineBytes = canvas.width * pixelBytes
+
+  const brushColors = [
+    [0.0, 0.0, 0.0],
+    [0.0, 0.0, 1.0],
+    [1.0, 0.0, 0.0],
+    [1.0, 0.0, 1.0],
+    [0.0, 1.0, 0.0],
+    [0.0, 1.0, 1.0],
+    [1.0, 1.0, 0.0],
+    [1.0, 1.0, 1.0],
+  ]
 
   const draw_color1 = [0.0, 0.0, 0.0]
   const draw_color2 = [0.0, 0.0, 0.0]
   const draw_color3 = [0.0, 0.0, 0.0]
 
-  let input_x = 200
-  let input_y = 200
+  let input_x = 0
+  let input_y = 0
 
   const gridLeft = 50
   const gridTop = 50
@@ -46,10 +59,15 @@ window.onload = () => {
 
       for (let x = 0; x <= gridWidth; x++) {
 
+        const point_x = left + x * cellSize
+        const point_y = top + y * cellSize
+
         row_points.push({
-          x: left + x * cellSize,
-          y: top + y * cellSize,
-          color: [Math.random(), Math.random(), Math.random()],
+          ox: point_x,
+          oy: point_y,
+          x: point_x,
+          y: point_y,
+          color: [0.0, 0.0, 0.0],
           rightPoint: null,
           belowPoint: null,
           diagonalPoint: null,
@@ -78,6 +96,46 @@ window.onload = () => {
     }
 
     return grid_rows
+  }
+
+  function modifyGridDataByFishEye(gridRows, centerX, centerY, radius, eraser) {
+
+    for (const gridRow of gridRows) {
+
+      for (const gridPoint of gridRow) {
+
+        const dx = gridPoint.ox - centerX
+        const dy = gridPoint.oy - centerY
+        const nx = dx / radius
+        const ny = dy / radius
+
+        const distance = Math.sqrt(nx * nx + ny * ny)
+
+        if (distance > 0 && distance < 1.0) {
+
+          if (!eraser) {
+
+            const theta = Math.asin(distance)
+            const projection_depth = 0.3
+            const lens_depth = projection_depth + Math.sin(theta)
+  
+            const move_x = nx / lens_depth * (1.0 + projection_depth)
+            const move_y = ny / lens_depth * (1.0 + projection_depth)
+  
+            const new_x = centerX + move_x * radius
+            const new_y = centerY + move_y * radius
+
+            gridPoint.x = Math.floor(learp(gridPoint.x, new_x, 0.2))
+            gridPoint.y = Math.floor(learp(gridPoint.y, new_y, 0.2))
+          }
+          else {
+
+            gridPoint.x = Math.floor(learp(gridPoint.x, gridPoint.ox, 1.0 - distance))
+            gridPoint.y = Math.floor(learp(gridPoint.y, gridPoint.oy, 1.0 - distance))
+          }
+        }
+      }
+    }
   }
 
   function calclateLineParameter(line_param, point1, point2) {
@@ -147,10 +205,10 @@ window.onload = () => {
 
   function drawQuadGradation(line1_param, line2_param, line3_param, line4_param, color1, color2, color3, color4) {
 
-    const minX = Math.min(line1_param.minX, line2_param.minX, line3_param.minX, line4_param.minX)
-    const minY = Math.min(line1_param.minY, line2_param.minY, line3_param.minY, line4_param.minY)
-    const maxX = Math.max(line1_param.maxX, line2_param.maxX, line3_param.maxX, line4_param.maxX)
-    const maxY = Math.max(line1_param.maxY, line2_param.maxY, line3_param.maxY, line4_param.maxY)
+    const minX = Math.max(Math.min(line1_param.minX, line2_param.minX, line3_param.minX, line4_param.minX), 0)
+    const minY = Math.max(Math.min(line1_param.minY, line2_param.minY, line3_param.minY, line4_param.minY), 0)
+    const maxX = Math.min(Math.max(line1_param.maxX, line2_param.maxX, line3_param.maxX, line4_param.maxX), canvasWidth - 1)
+    const maxY = Math.min(Math.max(line1_param.maxY, line2_param.maxY, line3_param.maxY, line4_param.maxY), canvasHeight - 1)
 
     const pixData = imageData.data
 
@@ -165,9 +223,9 @@ window.onload = () => {
 
         if (local_x >= 0.0 && local_x <= 1.0 && local_y >= 0.0 && local_y <= 1.0) {
 
-          interpolateRGB(draw_color1, color1, color2, local_x)
-          interpolateRGB(draw_color2, color3, color4, local_x)
-          interpolateRGB(draw_color3, draw_color1, draw_color2, local_y)
+          learpRGB(draw_color1, color1, color2, local_x)
+          learpRGB(draw_color2, color3, color4, local_x)
+          learpRGB(draw_color3, draw_color1, draw_color2, local_y)
 
           const offset = offsetY + x * pixelBytes
 
@@ -180,7 +238,25 @@ window.onload = () => {
     }
   }
 
-  function interpolateRGB(result, color1, color2, rate) {
+  function clamp(value, min, max) {
+
+    if (value < min) {
+      return min
+    }
+    else if (value > max) {
+      return max
+    }
+    else {
+      return value
+    }
+  }
+
+  function learp(value1, value2, rate) {
+
+    return value1 * (1.0 - rate) + value2 * rate
+  }
+
+  function learpRGB(result, color1, color2, rate) {
 
     for (let index = 0; index < 3; index++) {
 
@@ -195,7 +271,7 @@ window.onload = () => {
     }
   }
 
-  function setRadialGradation(gridRows, centerX, centerY, radius, waveEnabled) {
+  function setRadialGradation(gridRows, centerX, centerY, radius, color, brush_alpha, waveEnabled) {
 
     for (const gridRow of gridRows) {
 
@@ -205,23 +281,23 @@ window.onload = () => {
         const dy = gridPoint.y - centerY
         const distance = Math.sqrt(dx * dx + dy * dy)
 
-        let value = Math.min(Math.max((radius - distance) / radius, 0.0), 1.0)
+        let value = clamp((radius - distance) / radius, 0.0, 1.0)
 
         if (waveEnabled) {
 
-          value *= (Math.cos(distance / 8.0) + 1.0) * 0.5
+          value = (Math.cos(distance / 8.0) + 1.0) * 0.5
         }
         
-        gridPoint.color[0] = value
-        gridPoint.color[1] = 0.0
-        gridPoint.color[2] = 0.0
+        gridPoint.color[0] = learp(gridPoint.color[0], color[0], value * brush_alpha)
+        gridPoint.color[1] = learp(gridPoint.color[1], color[1], value * brush_alpha)
+        gridPoint.color[2] = learp(gridPoint.color[2], color[2], value * brush_alpha)
       }
     }
   }
 
-  function drawGridGradation() {
+  function drawGridGradation(gridRows) {
 
-    for (const gridRow of gridData) {
+    for (const gridRow of gridRows) {
 
       for (const gridPoint of gridRow) {
 
@@ -271,19 +347,24 @@ window.onload = () => {
     }
   }
 
-  function draw() {
+  function draw(eraser) {
 
     const input_radius = getRangeValue('circle-radius', 1)
     const showGrid = getRadioButtonValue('show-grid')
     const waveEnabled = getRadioButtonValue('wave')
+    const colorIndex = getRadioButtonValue('color')
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
     clearImageData(imageData.data)
 
-    setRadialGradation(gridData, input_x, input_y, input_radius, waveEnabled == 1)
+    modifyGridDataByFishEye(gridData, input_x, input_y, input_radius, eraser)
 
-    drawGridGradation()
+    const color = (eraser ? [0.0, 0.0, 0.0] : brushColors[colorIndex])
+    const brush_alpha = (eraser ? 0.2 : 0.1)
+    setRadialGradation(gridData, input_x, input_y, input_radius, color, brush_alpha, waveEnabled == 1)
+
+    drawGridGradation(gridData)
 
     ctx.putImageData(imageData, 0, 0)
 
@@ -335,13 +416,12 @@ window.onload = () => {
 
     if (e.buttons != 0) {
 
-      if (e.buttons == 1) {
+      input_x = e.offsetX / 2
+      input_y = e.offsetY / 2
 
-        input_x = e.offsetX / 2
-        input_y = e.offsetY / 2
-      }
+      const eraser = (e.buttons == 2)
 
-      draw()
+      draw(eraser)
     }
 
     e.preventDefault()
@@ -352,11 +432,11 @@ window.onload = () => {
   canvas.oncontextmenu  = (e) => { e.preventDefault() }
 
   document.getElementById('circle-radius').onchange = () => {
-    draw()
+    draw(false)
   }
 
   setRadioButtonEvent('show-grid', () => { draw() })
   setRadioButtonEvent('wave', () => { draw() })
 
-  draw()
+  draw(false)
 }

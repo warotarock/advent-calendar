@@ -28,6 +28,11 @@
         padding-left: 1rem;
       }
 
+      .inputs div label {
+        padding-right: 1rem;
+        user-select: none;
+      }
+
       .inputs span {
         display: inline-block;
         min-width: 8rem;
@@ -47,15 +52,25 @@
         <label><span>入力座標:</span><span id="input-text"></span></label>
       </div>
       <div>
-        <label><span>半径:</span><input type="range" id="circle-radius" value="100" min="0" max="300"><span id="circle-radius-text"></span></label>
+        <label><span>半径:</span><input type="range" id="circle-radius" value="45" min="0" max="300"><span id="circle-radius-text"></span></label>
       </div>
       <div>形状:
         <label><input type="radio" name="wave" value="0" checked>放射形</label>
         <label><input type="radio" name="wave" value="1">波</label>
       </div>
-      <div>グリッド:
-        <label><input type="radio" name="show-grid" value="1">表示</label>
-        <label><input type="radio" name="show-grid" value="0" checked>非表示</label>
+      <div>色:
+        <label><input type="radio" name="color" value="0">黒</label>
+        <label><input type="radio" name="color" value="1" checked>青</label>
+        <label><input type="radio" name="color" value="2">赤</label>
+        <label><input type="radio" name="color" value="3">紫</label>
+        <label><input type="radio" name="color" value="4">緑</label>
+        <label><input type="radio" name="color" value="5">水</label>
+        <label><input type="radio" name="color" value="6">黄</label>
+        <label><input type="radio" name="color" value="7">白</label>
+      </div>
+      <div>グリッド表示:
+        <label><input type="radio" name="show-grid" value="1" checked>ON</label>
+        <label><input type="radio" name="show-grid" value="0">OFF</label>
       </div>
       <div id="log">
       </div>
