@@ -1,22 +1,6 @@
 
 window.onload = () => {
 
-  const canvas = document.getElementById('canvas')
-  canvas.width = 400
-  canvas.height = 300
-  const ctx = canvas.getContext('2d')
-
-  let input_location = [0.0, 0.0]
-
-  const sample_stroke = createSampleStroke(canvas.width, canvas.height, 0.3, 13)
-  calclateStrokeParameters(sample_stroke, canvas.width, canvas.height)
-
-  const sample_maskData = createMaskData(0.0, 0.0, canvas.width, canvas.height)
-  const sample_mask_imageData = createImageData(sample_maskData.width, sample_maskData.height)
-
-  const sample_occlusionMap = createOcclusionMap()
-  const sample_occlusionMap_imageData = createImageData(500, 1)
-
   function createSampleStroke(canvas_width, canvas_height, size, division) {
 
     const padding = 20.0
@@ -115,7 +99,7 @@ window.onload = () => {
     }
   }
 
-  function createImageData(width, height) {
+  function createImageData(ctx, width, height) {
 
     const imageData = ctx.createImageData(width, height)
 
@@ -125,6 +109,22 @@ window.onload = () => {
       pixelBytes: 4,
       lineBytes: imageData.width * 4,
       imageData: imageData
+    }
+  }
+
+  function createDrawingImage(width, height) {
+
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+
+    const ctx = canvas.getContext('2d')
+
+    return {
+      canvas: canvas,
+      ctx: ctx,
+      width: width,
+      height: height
     }
   }
 
@@ -188,18 +188,18 @@ window.onload = () => {
 
   function collectOcclusionMap(occlusionMap, center_location, radius, border_segments) {
 
-    const outside_samplingLength = Math.floor(radius * 2 * Math.PI)
+    const circlar_samplingLength = Math.floor(radius * 2 * Math.PI)
 
-    if (occlusionMap.data.length < outside_samplingLength) {
+    if (occlusionMap.data.length < circlar_samplingLength) {
 
-      occlusionMap.data = new Float32Array(outside_samplingLength)
+      occlusionMap.data = new Float32Array(circlar_samplingLength)
     }
 
     const local_location = [0.0, 0.0]
     const local_center = [0.0, 0.0]
-    const unit_angle = Math.PI * 2 / outside_samplingLength
+    const unit_angle = Math.PI * 2 / circlar_samplingLength
 
-    for (let angleIndex = 0; angleIndex < outside_samplingLength; angleIndex++) {
+    for (let angleIndex = 0; angleIndex < circlar_samplingLength; angleIndex++) {
 
       const angle = unit_angle * angleIndex
       const x = center_location[0] + Math.cos(angle) * radius
@@ -207,32 +207,39 @@ window.onload = () => {
 
       occlusionMap.data[angleIndex] = 0.0
 
+      let min_distance = radius
       for (const segement of border_segments) {
 
         traslateMat3(local_location, x, y, segement.from_point.invMat3)
         traslateMat3(local_center, center_location[0], center_location[1], segement.from_point.invMat3)
 
-        if (local_location[1] < 0 && local_center[1] > 0) {
+        const isUpSide = (local_location[1] > 0 && local_center[1] < 0)
+        const isDownSide = (local_location[1] < 0 && local_center[1] > 0)
+
+        if (isUpSide || isDownSide) {
 
           const dx = local_location[0] - local_center[0]
           const dy = local_location[1] - local_center[1]
           
           const offset_y = -local_center[1]
           const offset_x = dx / dy * offset_y
-          const crossed_x = local_center[0] + offset_x
+          const crossing_x = local_center[0] + offset_x
 
-          if (crossed_x >= 0.0 && crossed_x <= segement.length) {
+          if (crossing_x >= 0.0 && crossing_x <= segement.length) {
 
             const distance = Math.sqrt(offset_x * offset_x + offset_y * offset_y)
 
-            occlusionMap.data[angleIndex] = distance
-            break
+            if (distance < min_distance) {
+
+              min_distance = distance
+              occlusionMap.data[angleIndex] = distance
+            }
           }
         }
       }
     }
 
-    occlusionMap.length = outside_samplingLength
+    occlusionMap.length = circlar_samplingLength
   }
   
   function setOcclusionMapImageToImageData(occlusionMap_imageData, occlusionMap, radius, color) {
@@ -260,9 +267,9 @@ window.onload = () => {
       }
       else {
 
-        image_data[iamge_offset] = color[0]
-        image_data[iamge_offset + 1] = color[1]
-        image_data[iamge_offset + 2] = color[2]
+        image_data[iamge_offset] = 255
+        image_data[iamge_offset + 1] = 255
+        image_data[iamge_offset + 2] = 255
         image_data[iamge_offset + 3] = 50
       }
 
@@ -280,39 +287,44 @@ window.onload = () => {
     }
   }
 
-  function setMaskForBrushShape(maskData, center_location, radius, occlusionMap, border_segments) {
+  function setMaskForBrushShape(maskData, center_location, radius, occlusionMap) {
 
     const mask_data = maskData.data
 
-    const pixel_center_x = Math.floor(center_location[0])
-    const pixel_center_y = Math.floor(center_location[1])
+    const center_x = center_location[0] - maskData.location[0]
+    const center_y = center_location[1] - maskData.location[1]
 
+    const pixel_center_x = Math.floor(center_x)
+    const pixel_center_y = Math.floor(center_y)
     const minX = Math.min(Math.max(pixel_center_x - radius, 0), maskData.width - 2)
     const minY = Math.min(Math.max(pixel_center_y - radius, 0), maskData.height - 2)
     const maxX = Math.min(Math.max(pixel_center_x + radius, 0), maskData.width - 2)
     const maxY = Math.min(Math.max(pixel_center_y + radius, 0), maskData.height - 2)
 
+    const pixel_centering_offset = 0.5
+
     for (let y = minY; y <= maxY; y++) {
 
-      let mask_offset = y * maskData.lineBytes + minX + maskData.pixelBytes
+      let mask_offset = y * maskData.lineBytes + minX * maskData.pixelBytes
 
       for (let x = minX; x <= maxX; x++) {
 
-        const dx = x - pixel_center_x
-        const dy = y - pixel_center_y
+        if (mask_data[mask_offset] != 0) {
+          mask_offset += maskData.pixelBytes
+          continue
+        }
+
+        const dx = x + pixel_centering_offset - center_x
+        const dy = y + pixel_centering_offset - center_y
         const distance = Math.sqrt(dx * dx + dy * dy)
 
         let angle = Math.atan2(-dy, dx)
         if (angle < 0) {
           angle = Math.PI * 2 + angle
         }
-        const occlusionIndex = Math.floor(angle / Math.PI / 2 * occlusionMap.length)
+        const angleIndex = Math.floor(angle / Math.PI / 2 * occlusionMap.length)
 
-        if (occlusionIndex >= occlusionMap.data.length) {
-          console.log(1)
-        }
-
-        const occlusion_distance = occlusionMap.data[occlusionIndex]
+        const occlusion_distance = occlusionMap.data[angleIndex]
 
         if (distance <= radius && (occlusion_distance == 0 || distance <= occlusion_distance)) {
           mask_data[mask_offset] = 1
@@ -416,7 +428,7 @@ window.onload = () => {
     result[1] = lx * mat[1] + ly * mat[4]
   }
 
-  function drawStroke(points, rgb_color) {
+  function drawStroke(ctx, points, rgb_color) {
 
     if (points.length < 2) {
       return
@@ -438,34 +450,19 @@ window.onload = () => {
     ctx.stroke()
   }
 
-  function draw(drawBrush) {
+  function drawRadialGradient(ctx, x, y, radius, color1, color2) {
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    gradient.addColorStop(0.0, `rgba(${color1}, 1.0)`);
+    gradient.addColorStop(1.0, `rgba(${color2}, 0.0)`);
 
-    if (drawBrush) {
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+  }
 
-      // sample_maskData.data[Math.floor(input_y) * sample_maskData.lineBytes + Math.floor(input_x) * sample_maskData.pixelBytes] = 1
+  function getRangeValue(id, division) {
 
-      const radius = 22.0
-
-      const segments = collectStrokeSegments(sample_stroke, input_location, radius)
-      // console.log(segments)
-
-      collectOcclusionMap(sample_occlusionMap, input_location, radius, segments)
-
-      clearMaskData(sample_maskData)
-
-      setMaskForBrushShape(sample_maskData, input_location, radius, sample_occlusionMap, segments)
-
-      setMaskImageToImageData(sample_mask_imageData, sample_maskData, [255, 0, 0, 255])
-
-      setOcclusionMapImageToImageData(sample_occlusionMap_imageData, sample_occlusionMap, radius, [255, 0, 0, 255])
-    }
-
-    ctx.putImageData(sample_mask_imageData.imageData, sample_maskData.location[0], sample_maskData.location[1])
-    ctx.putImageData(sample_occlusionMap_imageData.imageData, 0, 5)
-
-    drawStroke(sample_stroke.points, '255, 255, 255')
+    return Number(document.getElementById(id).value) / division
   }
 
   function getRadioButtonValue(name) {
@@ -480,6 +477,95 @@ window.onload = () => {
     return Number(checked_value)
   }
 
+  function setRadioButtonEvent(name, callback) {
+
+    document.getElementsByName(name).forEach(button => {
+
+      button.onclick = callback
+    })
+  }
+
+  function setText(id, text) {
+
+    document.getElementById(id).innerHTML = text
+  }
+
+  const canvas = document.getElementById('canvas')
+  canvas.width = 400
+  canvas.height = 300
+  const ctx = canvas.getContext('2d')
+
+  let input_location = [0.0, 0.0]
+
+  const sample_stroke = createSampleStroke(canvas.width, canvas.height, 0.3, 13)
+  calclateStrokeParameters(sample_stroke, canvas.width, canvas.height)
+
+  const maskData = createMaskData(0.0, 10.0, canvas.width, canvas.height)
+  const mask_imageData = createImageData(ctx, maskData.width, maskData.height)
+
+  const occlusionMap = createOcclusionMap()
+  const occlusionMap_imageData = createImageData(ctx, 500, 1)
+
+  const mask_image = createDrawingImage(canvas.width, canvas.height)
+  const drawer_image = createDrawingImage(canvas.width, canvas.height)
+
+  function draw(drawBrush) {
+
+    const displayMaskOnly = (getRadioButtonValue('display-type') == 1)
+    const input_radius = getRangeValue('circle-radius', 1)
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    if (displayMaskOnly) {
+      drawer_image.ctx.clearRect(0, 0, drawer_image.width, drawer_image.height)
+    }
+
+    if (drawBrush) {
+
+      const segments = collectStrokeSegments(sample_stroke, input_location, input_radius)
+
+      collectOcclusionMap(occlusionMap, input_location, input_radius, segments)
+
+      if (displayMaskOnly) {
+      }
+
+      setMaskForBrushShape(maskData, input_location, input_radius, occlusionMap)
+
+      setMaskImageToImageData(mask_imageData, maskData, [255, 0, 0, 255])
+
+      setOcclusionMapImageToImageData(occlusionMap_imageData, occlusionMap, input_radius, [255, 0, 0, 255])
+
+      if (displayMaskOnly) {
+
+        mask_image.ctx.clearRect(0, 0, mask_image.width, mask_image.height)
+      }
+
+      drawer_image.ctx.globalCompositeOperation = 'source-over'
+      drawRadialGradient(drawer_image.ctx, input_location[0], input_location[1], input_radius, '0, 255, 0', '0, 255, 0')
+
+      mask_image.ctx.putImageData(mask_imageData.imageData, maskData.location[0], maskData.location[1])
+      drawer_image.ctx.globalCompositeOperation = 'destination-in'
+      drawer_image.ctx.drawImage(mask_image.canvas, 0, 0, mask_image.width, mask_image.height)
+    }
+
+    if (displayMaskOnly) {
+      ctx.putImageData(mask_imageData.imageData, maskData.location[0], maskData.location[1])
+    }
+
+    ctx.putImageData(occlusionMap_imageData.imageData, 0, 5)
+
+    ctx.drawImage(drawer_image.canvas, 0, 0, drawer_image.width, drawer_image.height)
+
+    drawStroke(ctx, sample_stroke.points, '255, 255, 255')
+
+    showPrameterText(input_radius)
+  }
+
+  function showPrameterText(circleRadius) {
+
+    setText('circle-radius-text', `${circleRadius.toFixed(1)}`)
+  }
+
   const pointer_event = (e) => {
 
     if (e.buttons != 0) {
@@ -487,7 +573,7 @@ window.onload = () => {
       input_location[0] = e.offsetX / 2
       input_location[1] = e.offsetY / 2
 
-      draw(true)
+      draw(canvas, ctx, true, input_location, sample_stroke)
     }
 
     e.preventDefault()
@@ -496,6 +582,22 @@ window.onload = () => {
   canvas.onpointerdown = pointer_event
   canvas.onpointermove = pointer_event
   canvas.oncontextmenu  = (e) => { e.preventDefault() }
+
+  setRadioButtonEvent('display-type', () => { draw(false) })
+
+  document.getElementById('clear').onclick = () => {
+
+    clearMaskData(maskData)
+    setMaskImageToImageData(mask_imageData, maskData, [255, 0, 0, 255])
+
+    drawer_image.ctx.clearRect(0, 0, drawer_image.width, drawer_image.height)
+
+    draw(false)
+  }
+
+  document.getElementById('circle-radius').onchange = () => {
+    draw(false)
+  }
 
   draw(false)
 }

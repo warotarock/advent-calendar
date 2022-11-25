@@ -23,6 +23,10 @@
         margin-block-start: 1rem;
         padding-left: 1rem;
       }
+
+      .inputs input[type=range] {
+        width: 30rem;
+      }
     </style>
     <script src="index.js" ></script>
 </head>
@@ -34,26 +38,21 @@
     <p>作成者：柏崎ワロタロ</p>
     <canvas id="canvas"></canvas>
     <div class="inputs">
-      <div>描画数:
-        <label><input type="radio" name="particles" value="100">100</label>
-        <label><input type="radio" name="particles" value="1000" checked>1000</label>
-        <label><input type="radio" name="particles" value="10000">1万</label>
-        <label><input type="radio" name="particles" value="100000">10万</label>
+      <div>表示:
+        <label><input type="radio" name="display-type" value="0" checked>ブラシ塗り</label>
+        <label><input type="radio" name="display-type" value="1">マスクを表示</label>
       </div>
-      <div>サイズ:
-        <label><input type="radio" name="particle-size" value="0">2～5</label>
-        <label><input type="radio" name="particle-size" value="1" checked>5～10</label>
-        <label><input type="radio" name="particle-size" value="2">10～15</label>
-        <label><input type="radio" name="particle-size" value="3">15～30</label>
-        <label><input type="radio" name="particle-size" value="4">30～50</label>
+      <div>
+        <label><span>ブラシ半径:</span><input type="range" id="circle-radius" value="32" min="0" max="100"><span id="circle-radius-text"></span></label>
       </div>
       <div>
         <button id="clear">クリア</button>
-        <button id="generate">データ生成</button>
-        <button id="draw">描画</button>
-        <button id="gradients">RadialGradientの生成のみ実行</button>
       </div>
-      <div id="log">ここに実行時間が表示されます。</div>
+      <div>
+        キャンバス左上の水平な線はブラシの中心から見て線に遮蔽される角度を可視化しています。
+        色が明るいほどブラシの中心と線の距離が近いことを表しています。
+        角度は水平右を0として反時計回りの角度です。
+      </div>
     </div>
   </body>
 </html>
