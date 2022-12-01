@@ -19,10 +19,10 @@ window.onload = () => {
       const point = {
         location: [padding + x, y],
         length: 0.0,
-        invMat3: [
-          0.0, 0.0, 0.0,
-          0.0, 0.0, 0.0,
-          0.0, 0.0, 0.0
+        invMat2d: [
+          0.0, 0.0,
+          0.0, 0.0,
+          0.0, 0.0
         ]
       }
 
@@ -57,12 +57,12 @@ window.onload = () => {
 
         const angle = Math.atan2(ny, nx)
   
-        from_point.invMat3[0] = Math.cos(-angle)
-        from_point.invMat3[1] = Math.sin(-angle)
-        from_point.invMat3[3] = -Math.sin(-angle)
-        from_point.invMat3[4] = Math.cos(-angle)
-        from_point.invMat3[6] = -from_point.location[0]
-        from_point.invMat3[7] = -from_point.location[1]
+        from_point.invMat2d[0] = Math.cos(-angle)
+        from_point.invMat2d[1] = Math.sin(-angle)
+        from_point.invMat2d[2] = -Math.sin(-angle)
+        from_point.invMat2d[3] = Math.cos(-angle)
+        from_point.invMat2d[4] = -from_point.location[0]
+        from_point.invMat2d[5] = -from_point.location[1]
       }
     }
 
@@ -210,8 +210,8 @@ window.onload = () => {
       let min_distance = radius
       for (const segement of border_segments) {
 
-        traslateMat3(local_location, x, y, segement.from_point.invMat3)
-        traslateMat3(local_center, center_location[0], center_location[1], segement.from_point.invMat3)
+        traslateMat2d(local_location, x, y, segement.from_point.invMat2d)
+        traslateMat2d(local_center, center_location[0], center_location[1], segement.from_point.invMat2d)
 
         const isUpSide = (local_location[1] > 0 && local_center[1] < 0)
         const isDownSide = (local_location[1] < 0 && local_center[1] > 0)
@@ -419,13 +419,13 @@ window.onload = () => {
     return (f1 * f1) / r2
   }
 
-  function traslateMat3(result, x, y, mat) {
+  function traslateMat2d(result, x, y, mat2d) {
 
-    const lx = x + mat[6]
-    const ly = y + mat[7]
+    const lx = x + mat2d[4]
+    const ly = y + mat2d[5]
 
-    result[0] = lx * mat[0] + ly * mat[3]
-    result[1] = lx * mat[1] + ly * mat[4]
+    result[0] = lx * mat2d[0] + ly * mat2d[2]
+    result[1] = lx * mat2d[1] + ly * mat2d[3]
   }
 
   function drawStroke(ctx, points, rgb_color) {
@@ -490,73 +490,73 @@ window.onload = () => {
     document.getElementById(id).innerHTML = text
   }
 
-  const canvas = document.getElementById('canvas')
-  canvas.width = 400
-  canvas.height = 300
-  const ctx = canvas.getContext('2d')
+  const _canvas = document.getElementById('canvas')
+  _canvas.width = 400
+  _canvas.height = 300
+  const _ctx = _canvas.getContext('2d')
 
-  let input_location = [0.0, 0.0]
+  let _input_location = [0.0, 0.0]
 
-  const sample_stroke = createSampleStroke(canvas.width, canvas.height, 0.3, 13)
-  calclateStrokeParameters(sample_stroke, canvas.width, canvas.height)
+  const _sample_stroke = createSampleStroke(_canvas.width, _canvas.height, 0.3, 13)
+  calclateStrokeParameters(_sample_stroke, _canvas.width, _canvas.height)
 
-  const maskData = createMaskData(0.0, 10.0, canvas.width, canvas.height)
-  const mask_imageData = createImageData(ctx, maskData.width, maskData.height)
+  const _maskData = createMaskData(0.0, 10.0, _canvas.width, _canvas.height)
+  const _mask_imageData = createImageData(_ctx, _maskData.width, _maskData.height)
 
-  const occlusionMap = createOcclusionMap()
-  const occlusionMap_imageData = createImageData(ctx, 500, 1)
+  const _occlusionMap = createOcclusionMap()
+  const _occlusionMap_imageData = createImageData(_ctx, 500, 1)
 
-  const mask_image = createDrawingImage(canvas.width, canvas.height)
-  const drawer_image = createDrawingImage(canvas.width, canvas.height)
+  const _mask_image = createDrawingImage(_canvas.width, _canvas.height)
+  const _drawer_image = createDrawingImage(_canvas.width, _canvas.height)
 
   function draw(drawBrush) {
 
     const displayMaskOnly = (getRadioButtonValue('display-type') == 1)
     const input_radius = getRangeValue('circle-radius', 1)
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    _ctx.clearRect(0, 0, _canvas.width, _canvas.height)
 
     if (displayMaskOnly) {
-      drawer_image.ctx.clearRect(0, 0, drawer_image.width, drawer_image.height)
+      _drawer_image.ctx.clearRect(0, 0, _drawer_image.width, _drawer_image.height)
     }
 
     if (drawBrush) {
 
-      const segments = collectStrokeSegments(sample_stroke, input_location, input_radius)
+      const segments = collectStrokeSegments(_sample_stroke, _input_location, input_radius)
 
-      collectOcclusionMap(occlusionMap, input_location, input_radius, segments)
+      collectOcclusionMap(_occlusionMap, _input_location, input_radius, segments)
 
       if (displayMaskOnly) {
       }
 
-      setMaskForBrushShape(maskData, input_location, input_radius, occlusionMap)
+      setMaskForBrushShape(_maskData, _input_location, input_radius, _occlusionMap)
 
-      setMaskImageToImageData(mask_imageData, maskData, [255, 0, 0, 255])
+      setMaskImageToImageData(_mask_imageData, _maskData, [255, 0, 0, 255])
 
-      setOcclusionMapImageToImageData(occlusionMap_imageData, occlusionMap, input_radius, [255, 0, 0, 255])
+      setOcclusionMapImageToImageData(_occlusionMap_imageData, _occlusionMap, input_radius, [255, 0, 0, 255])
 
       if (displayMaskOnly) {
 
-        mask_image.ctx.clearRect(0, 0, mask_image.width, mask_image.height)
+        _mask_image.ctx.clearRect(0, 0, _mask_image.width, _mask_image.height)
       }
 
-      drawer_image.ctx.globalCompositeOperation = 'source-over'
-      drawRadialGradient(drawer_image.ctx, input_location[0], input_location[1], input_radius, '0, 255, 0', '0, 255, 0')
+      _drawer_image.ctx.globalCompositeOperation = 'source-over'
+      drawRadialGradient(_drawer_image.ctx, _input_location[0], _input_location[1], input_radius, '0, 255, 0', '0, 255, 0')
 
-      mask_image.ctx.putImageData(mask_imageData.imageData, maskData.location[0], maskData.location[1])
-      drawer_image.ctx.globalCompositeOperation = 'destination-in'
-      drawer_image.ctx.drawImage(mask_image.canvas, 0, 0, mask_image.width, mask_image.height)
+      _mask_image.ctx.putImageData(_mask_imageData.imageData, _maskData.location[0], _maskData.location[1])
+      _drawer_image.ctx.globalCompositeOperation = 'destination-in'
+      _drawer_image.ctx.drawImage(_mask_image.canvas, 0, 0, _mask_image.width, _mask_image.height)
     }
 
     if (displayMaskOnly) {
-      ctx.putImageData(mask_imageData.imageData, maskData.location[0], maskData.location[1])
+      _ctx.putImageData(_mask_imageData.imageData, _maskData.location[0], _maskData.location[1])
     }
 
-    ctx.putImageData(occlusionMap_imageData.imageData, 0, 5)
+    _ctx.putImageData(_occlusionMap_imageData.imageData, 0, 5)
 
-    ctx.drawImage(drawer_image.canvas, 0, 0, drawer_image.width, drawer_image.height)
+    _ctx.drawImage(_drawer_image.canvas, 0, 0, _drawer_image.width, _drawer_image.height)
 
-    drawStroke(ctx, sample_stroke.points, '255, 255, 255')
+    drawStroke(_ctx, _sample_stroke.points, '255, 255, 255')
 
     showPrameterText(input_radius)
   }
@@ -570,27 +570,27 @@ window.onload = () => {
 
     if (e.buttons != 0) {
 
-      input_location[0] = e.offsetX / 2
-      input_location[1] = e.offsetY / 2
+      _input_location[0] = e.offsetX / 2
+      _input_location[1] = e.offsetY / 2
 
-      draw(canvas, ctx, true, input_location, sample_stroke)
+      draw(_canvas, _ctx, true, _input_location, _sample_stroke)
     }
 
     e.preventDefault()
   }
 
-  canvas.onpointerdown = pointer_event
-  canvas.onpointermove = pointer_event
-  canvas.oncontextmenu  = (e) => { e.preventDefault() }
+  _canvas.onpointerdown = pointer_event
+  _canvas.onpointermove = pointer_event
+  _canvas.oncontextmenu  = (e) => { e.preventDefault() }
 
   setRadioButtonEvent('display-type', () => { draw(false) })
 
   document.getElementById('clear').onclick = () => {
 
-    clearMaskData(maskData)
-    setMaskImageToImageData(mask_imageData, maskData, [255, 0, 0, 255])
+    clearMaskData(_maskData)
+    setMaskImageToImageData(_mask_imageData, _maskData, [255, 0, 0, 255])
 
-    drawer_image.ctx.clearRect(0, 0, drawer_image.width, drawer_image.height)
+    _drawer_image.ctx.clearRect(0, 0, _drawer_image.width, _drawer_image.height)
 
     draw(false)
   }
