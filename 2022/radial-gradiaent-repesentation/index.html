@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
-    <title>Canvas2D 放射形グラデーションの細分割による線画を越えない塗りの実験（微妙）</title>
+    <title>Canvas2D RadialGradientの細分割による線画をはみ出さない塗りの実験</title>
     <style>
       body {
         background-color: #000;
@@ -28,6 +28,11 @@
         padding-left: 1rem;
       }
 
+      .inputs div label {
+        padding-right: 1rem;
+        user-select: none;
+      }
+
       .inputs span {
         display: inline-block;
         width: 8rem;
@@ -37,12 +42,15 @@
 </head>
 <body>
     <nav>
-      <a href="https://qiita.com/advent-calendar/2022/webgraphics">Webグラフィックス Advent calendar 2022 7日目</a>
+      <a href="https://qiita.com/advent-calendar/2022/webgraphics">Webグラフィックス Advent calendar 2022 6日目</a>
     </nav>
-    <h1>Canvas2D 放射形グラデーションの細分割による線画を越えない塗りの実験（微妙）</h1>
+    <h1>Canvas2D RadialGradientの細分割による線画をはみ出さない塗りの実験</h1>
     <p>作成者：柏崎ワロタロ</p>
     <canvas id="canvas"></canvas>
     <div class="inputs">
+      <div>
+        キャンバスをクリックすると境界線の位置を変更できます。
+      </div>
       <div>
         <label><span>分割数:</span><input type="range" id="circler-division" value="14" min="5" max="32"><span id="circler-division-text"></span></label>
       </div>
@@ -55,8 +63,9 @@
       <div>
         <label><span>分割の最小半径:</span><input type="range" id="min-radius" value="15" min="5" max="30"><span id="min-radius-text"></span></label>
       </div>
-      <div>
-        <label><span>境界線の位置:</span><input type="range" id="line-position" value="60" min="0" max="200"><span id="line-position-text"></span></label>
+      <div>円の線を表示:
+        <label><input type="radio" name="circle-lines" value="0" checked>OFF</label>
+        <label><input type="radio" name="circle-lines" value="1">ON</label>
       </div>
       <div id="log">
       </div>

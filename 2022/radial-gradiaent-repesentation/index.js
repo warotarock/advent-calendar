@@ -9,11 +9,6 @@ class RadialGradientCircle {
 
 window.onload = () => {
 
-  const canvas = document.getElementById('canvas')
-  canvas.width = 400
-  canvas.height = 400
-  const ctx = canvas.getContext('2d')
-
   function createSubdividedCircles(source_circle, circlerDivision, levelDivision, center_alpha, outer_alpha) {
 
     const partingRate = 1.0 / (levelDivision + 1)
@@ -115,17 +110,20 @@ window.onload = () => {
     return { x: local_x, y: -local_y }
   }
 
-  function drawGradientCircle(x, y, radius, color1, color2) {
+  function drawGradientCircles(circles, rgb_color, ctx) {
 
-    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
-    gradient.addColorStop(0.4, color1);
-    gradient.addColorStop(1.0, color2);
+    const gradient = ctx.createRadialGradient(
+      0.0, 
+      0.0,
+      0.0,
+      0.0,
+      0.0, 
+      1.0,
+    )
+    gradient.addColorStop(0.4, `rgba(${rgb_color}, 1.0)`)
+    gradient.addColorStop(1.0, `rgba(${rgb_color}, 0.0)`)
 
-    ctx.fillStyle = gradient;
-    ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
-  }
-
-  function drawGradientCircles(circles, rgb_color) {
+    ctx.fillStyle = gradient
 
     for (const circle of circles) {
 
@@ -133,11 +131,27 @@ window.onload = () => {
         continue
       }
 
-      drawGradientCircle(circle.x, circle.y, circle.radius, `rgba(${rgb_color}, ${circle.alpha})`, `rgba(${rgb_color}, 0.0)`)
+      ctx.setTransform(
+        circle.radius, 0.0,
+        0.0, circle.radius,
+        circle.x, circle.y
+      )
+
+      ctx.globalAlpha = circle.alpha
+
+      ctx.fillRect(-1.0, -1.0, 2.0, 2.0)
     }
+
+    ctx.globalAlpha = 1.0
+
+    ctx.setTransform(
+      1.0, 0.0,
+      0.0, 1.0,
+      0.0, 0.0
+    )
   }
 
-  function drawCircle(circle, rgb_color) {
+  function drawCircle(circle, rgb_color, ctx) {
 
     ctx.strokeStyle = `rgba(${rgb_color})`
     ctx.beginPath()
@@ -145,7 +159,7 @@ window.onload = () => {
     ctx.stroke()
   }
 
-  function drawCircles(circles, rgb_color) {
+  function drawCircles(circles, rgb_color, ctx) {
 
     for (const circle of circles) {
 
@@ -153,11 +167,11 @@ window.onload = () => {
         continue
       }
 
-      drawCircle(circle, rgb_color)
+      drawCircle(circle, rgb_color, ctx)
     }
   }
 
-  function drawLine(line, rgb_color) {
+  function drawLine(line, rgb_color, ctx) {
 
     ctx.strokeStyle = `rgb(${rgb_color})`
     ctx.beginPath()
@@ -166,7 +180,49 @@ window.onload = () => {
     ctx.stroke()
   }
 
-  function draw() {
+  function getRangeValue(id, division) {
+
+    return Number(document.getElementById(id).value) / division
+  }
+
+  function getRadioButtonValue(name) {
+
+    let checked_value
+    document.getElementsByName(name).forEach(button => {
+      if (button.checked) {
+        checked_value = button.value
+      }
+    })
+
+    return Number(checked_value)
+  }
+
+  function setRadioButtonEvent(name, callback) {
+
+    document.getElementsByName(name).forEach(button => {
+
+      button.onclick = callback
+    })
+  }
+
+  function setText(id, text) {
+
+    document.getElementById(id).innerHTML = text
+  }
+
+  const _canvas = document.getElementById('canvas')
+  _canvas.width = 400
+  _canvas.height = 400
+  const _ctx = _canvas.getContext('2d')
+
+  const _cutout_line = {
+    x1: 50,
+    y1: 280,
+    x2: 350,
+    y2: 200
+  }
+
+  function draw(canvas, ctx) {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -174,8 +230,8 @@ window.onload = () => {
     const circlerDivision = getRangeValue('circler-division', 1)
     const center_alpha = getRangeValue('center-alpha', 100)
     const outer_alpha = getRangeValue('outer-alpha', 100)
-    const line_position = getRangeValue('line-position', 1)
     const minRadius = getRangeValue('min-radius', 1)
+    const circleLinesEnagled = (getRadioButtonValue('circle-lines') == 1)
 
     const color = '255, 0, 0'
 
@@ -185,8 +241,8 @@ window.onload = () => {
     sample_circle.radius = 80
     sample_circle.alpha = 1.0
   
-    drawCircle(sample_circle, '200, 200, 200, 0.5')
-    drawGradientCircles([sample_circle], color)
+    drawCircle(sample_circle, '200, 200, 200, 0.5', ctx)
+    drawGradientCircles([sample_circle], color, ctx)
   
     const target_circle = new RadialGradientCircle()
     target_circle.x = 285
@@ -196,9 +252,12 @@ window.onload = () => {
   
     const subdivided_circles = createSubdividedCircles(target_circle, circlerDivision, levelDivision, center_alpha, outer_alpha)
 
-    drawCircle(target_circle, '200, 200, 200, 0.5')
-    drawGradientCircles(subdivided_circles, color)
-    // drawCircles(subdivided_circles, '200, 200, 200, 0.5')
+    drawCircle(target_circle, '200, 200, 200, 0.5', ctx)
+    drawGradientCircles(subdivided_circles, color, ctx)
+
+    if (circleLinesEnagled) {
+      drawCircles(subdivided_circles, '200, 200, 200, 0.5', ctx)
+    }
 
     const cutout_circle = new RadialGradientCircle()
     cutout_circle.x = 200
@@ -206,31 +265,17 @@ window.onload = () => {
     cutout_circle.radius = 80
     cutout_circle.alpha = 0.8
 
-    const cutout_line = {
-      x1: 50,
-      y1: 280,
-      x2: 350,
-      y2: 80 + line_position * 2,
+    const cutouted_circles = createCutoutedCircles(cutout_circle, _cutout_line, minRadius, circlerDivision, levelDivision, center_alpha, outer_alpha)
+
+    drawLine(_cutout_line, '255, 255, 255', ctx)
+    drawCircle(cutout_circle, '200, 200, 200, 0.5', ctx)
+    drawGradientCircles(cutouted_circles, color, ctx)
+
+    if (circleLinesEnagled) {
+      drawCircles(cutouted_circles, '200, 200, 200, 0.2', ctx)
     }
 
-    const cutouted_circles = createCutoutedCircles(cutout_circle, cutout_line, minRadius, circlerDivision, levelDivision, center_alpha, outer_alpha)
-
-    drawLine(cutout_line, '255, 255, 255')
-    drawCircle(cutout_circle, '200, 200, 200, 0.5')
-    drawGradientCircles(cutouted_circles, color)
-    // drawCircles(cutouted_circles, '200, 200, 200, 0.5')
-
     showPrameterText(cutouted_circles.length)
-  }
-
-  function getRangeValue(id, division) {
-
-    return Number(document.getElementById(id).value) / division
-  }
-
-  function setText(id, text) {
-
-    document.getElementById(id).innerHTML = text
   }
 
   function showPrameterText(circle_count) {
@@ -238,30 +283,40 @@ window.onload = () => {
     setText('circler-division-text', getRangeValue('circler-division', 1))
     setText('center-alpha-text', getRangeValue('center-alpha', 100))
     setText('outer-alpha-text', getRangeValue('outer-alpha', 100))
-    setText('line-position-text', getRangeValue('line-position', 1))
     setText('min-radius-text', getRangeValue('min-radius', 1))
     setText('log', `円の数: ${circle_count}`)
   }
 
-  document.getElementById('circler-division').onchange = () => {
-    draw()
+  const drawOnChange = () => {
+    draw(_canvas, _ctx)
   }
 
-  document.getElementById('center-alpha').onchange = () => {
-    draw()
+  document.getElementById('circler-division').onchange = drawOnChange
+  document.getElementById('center-alpha').onchange = drawOnChange
+  document.getElementById('outer-alpha').onchange = drawOnChange
+  document.getElementById('min-radius').onchange = drawOnChange
+
+  setRadioButtonEvent('circle-lines', drawOnChange)
+
+  const pointer_event = (e) => {
+
+    if (e.buttons != 0) {
+
+      if (e.buttons == 1) {
+
+        _cutout_line.x2 = e.offsetX / 2
+        _cutout_line.y2 = e.offsetY / 2
+      }
+
+      draw(_canvas, _ctx)
+    }
+
+    e.preventDefault()
   }
 
-  document.getElementById('outer-alpha').onchange = () => {
-    draw()
-  }
+  canvas.onpointerdown = pointer_event
+  canvas.onpointermove = pointer_event
+  canvas.oncontextmenu  = (e) => { e.preventDefault() }
 
-  document.getElementById('min-radius').onchange = () => {
-    draw()
-  }
-
-  document.getElementById('line-position').onchange = () => {
-    draw()
-  }
-
-  draw()
+  draw(_canvas, _ctx)
 }
