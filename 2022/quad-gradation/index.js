@@ -1,33 +1,6 @@
 
 window.onload = () => {
 
-  const canvas = document.getElementById('canvas')
-  canvas.width = 400
-  canvas.height = 400
-
-  const ctx = canvas.getContext('2d')
-  const imageData = ctx.createImageData(canvas.width, canvas.height)
-  const pixelBytes = 4
-  const lineBytes = canvas.width * pixelBytes
-
-  const input_circle = { x: 0, y: 0, radius: 5 }
-  const input_line1 = { x1: 110, y1: 130, x2: 300, y2: 100 }
-  const input_line2 = { x1: 80, y1: 200, x2: 240, y2: 300 }
-  const input_line3 = { x1: input_line1.x1, y1: input_line1.y1, x2: input_line2.x1, y2: input_line2.y1 }
-  const input_line4 = { x1: input_line1.x2, y1: input_line1.y2, x2: input_line2.x2, y2: input_line2.y2 }
-  const square_colors = [
-    [1.0, 0.0, 0.0],
-    [1.0, 0.0, 1.0],
-    [0.0, 1.0, 0.0],
-    [0.0, 0.0, 1.0],
-  ]
-  const draw_color1 = [0.0, 0.0, 0.0]
-  const draw_color2 = [0.0, 0.0, 0.0]
-  const draw_color3 = [0.0, 0.0, 0.0]
-
-  let input_x = 200
-  let input_y = 200
-
   function getLineParameter(line) {
 
     const xa = line.x2 - line.x1
@@ -49,7 +22,7 @@ window.onload = () => {
 
   function calclateQuadInterpolation(line1_param, line2_param, src_x, src_y, isHorizontal) {
 
-    // t = 0.0～1.0 によって決まる線分上の点を、二つの線分それぞれで(x1, y1)と(x2, y2)とする。
+    // t = 0.0～1.0 によって決まる二つの線分上の点を、それぞれ(x1, y1)と(x2, y2)とする。
     // その二つの点を結ぶ線が点(x, y)を通るとする。
     // すると、
     // x1 = xa1 * t + xb1
@@ -90,14 +63,20 @@ window.onload = () => {
     }
   }
 
-  function drawQuadGradation(line1_param, line2_param, line3_param, line4_param, color1, color2, color3, color4) {
+  function drawQuadGradient(imageData, line1_param, line2_param, line3_param, line4_param, color1, color2, color3, color4) {
 
-    const minX = Math.min(line1_param.minX, line2_param.minX, line3_param.minX, line4_param.minX)
-    const minY = Math.min(line1_param.minY, line2_param.minY, line3_param.minY, line4_param.minY)
-    const maxX = Math.max(line1_param.maxX, line2_param.maxX, line3_param.maxX, line4_param.maxX)
-    const maxY = Math.max(line1_param.maxY, line2_param.maxY, line3_param.maxY, line4_param.maxY)
+    const minX = Math.floor(Math.min(line1_param.minX, line2_param.minX, line3_param.minX, line4_param.minX))
+    const minY = Math.floor(Math.min(line1_param.minY, line2_param.minY, line3_param.minY, line4_param.minY))
+    const maxX = Math.floor(Math.max(line1_param.maxX, line2_param.maxX, line3_param.maxX, line4_param.maxX))
+    const maxY = Math.floor(Math.max(line1_param.maxY, line2_param.maxY, line3_param.maxY, line4_param.maxY))
 
     const pixData = imageData.data
+    const pixelBytes = 4
+    const lineBytes = _canvas.width * pixelBytes
+
+    const draw_color1 = [0.0, 0.0, 0.0]
+    const draw_color2 = [0.0, 0.0, 0.0]
+    const draw_color3 = [0.0, 0.0, 0.0]
 
     for (let y = minY; y <= maxY; y++) {
 
@@ -133,7 +112,7 @@ window.onload = () => {
     }
   }
 
-  function drawCircle(circle, rgb_color) {
+  function drawCircle(circle, rgb_color, ctx) {
 
     ctx.strokeStyle = `rgba(${rgb_color})`
     ctx.beginPath()
@@ -141,7 +120,7 @@ window.onload = () => {
     ctx.stroke()
   }
 
-  function drawLine(line, rgb_color) {
+  function drawLine(line, rgb_color, ctx) {
 
     ctx.strokeStyle = `rgb(${rgb_color})`
     ctx.beginPath()
@@ -157,45 +136,6 @@ window.onload = () => {
     }
   }
 
-  function draw() {
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-    clearImageData(imageData.data)
-
-    const line1_param = getLineParameter(input_line1)
-    const line2_param = getLineParameter(input_line2)
-    const line3_param = getLineParameter(input_line3)
-    const line4_param = getLineParameter(input_line4)
-
-    drawQuadGradation(
-      line1_param,
-      line2_param,
-      line3_param,
-      line4_param,
-      square_colors[0],
-      square_colors[1],
-      square_colors[2],
-      square_colors[3]
-    )
-
-    ctx.putImageData(imageData, 0, 0)
-
-    const local_x = calclateQuadInterpolation(line1_param, line2_param, input_x, input_y, true)
-    const local_y = calclateQuadInterpolation(line3_param, line4_param, input_x, input_y, false)
-
-    drawLine(input_line1, '200, 100, 100, 1.0')
-    drawLine(input_line2, '200, 100, 100, 1.0')
-    drawLine(input_line3, '100, 100, 200, 1.0')
-    drawLine(input_line4, '100, 100, 200, 1.0')
-
-    input_circle.x = input_x
-    input_circle.y = input_y
-    drawCircle(input_circle, '100, 100, 255, 1.0')
-
-    showPrameterText(input_x, input_y, local_x, local_y)
-  }
-
   function setText(id, text) {
 
     document.getElementById(id).innerHTML = text
@@ -207,22 +147,84 @@ window.onload = () => {
     setText('result-text', `(${lx.toFixed(3)}, ${ly.toFixed(3)})`)
   }
 
+  const _canvas = document.getElementById('canvas')
+  _canvas.width = 400
+  _canvas.height = 400
+
+  const _ctx = _canvas.getContext('2d')
+  const _imageData = _ctx.createImageData(_canvas.width, _canvas.height)
+
+  const _input_circle = { x: 0, y: 0, radius: 5 }
+  const _input_line1 = { x1: 110, y1: 130, x2: 300, y2: 100 }
+  const _input_line2 = { x1: 80, y1: 200, x2: 240, y2: 300 }
+  const _input_line3 = { x1: _input_line1.x1, y1: _input_line1.y1, x2: _input_line2.x1, y2: _input_line2.y1 }
+  const _input_line4 = { x1: _input_line1.x2, y1: _input_line1.y2, x2: _input_line2.x2, y2: _input_line2.y2 }
+  const _square_colors = [
+    [1.0, 0.0, 0.0],
+    [1.0, 0.0, 1.0],
+    [0.0, 1.0, 0.0],
+    [0.0, 0.0, 1.0],
+  ]
+
+  let _input_x = 200
+  let _input_y = 200
+
+  function draw() {
+
+    _ctx.clearRect(0, 0, _canvas.width, _canvas.height)
+
+    clearImageData(_imageData.data)
+
+    const line1_param = getLineParameter(_input_line1)
+    const line2_param = getLineParameter(_input_line2)
+    const line3_param = getLineParameter(_input_line3)
+    const line4_param = getLineParameter(_input_line4)
+
+    drawQuadGradient(
+      _imageData,
+      line1_param,
+      line2_param,
+      line3_param,
+      line4_param,
+      _square_colors[0],
+      _square_colors[1],
+      _square_colors[2],
+      _square_colors[3]
+    )
+
+    _ctx.putImageData(_imageData, 0, 0)
+
+    const local_x = calclateQuadInterpolation(line1_param, line2_param, _input_x, _input_y, true)
+    const local_y = calclateQuadInterpolation(line3_param, line4_param, _input_x, _input_y, false)
+
+    drawLine(_input_line1, '200, 100, 100, 1.0', _ctx)
+    drawLine(_input_line2, '200, 100, 100, 1.0', _ctx)
+    drawLine(_input_line3, '100, 100, 200, 1.0', _ctx)
+    drawLine(_input_line4, '100, 100, 200, 1.0', _ctx)
+
+    _input_circle.x = _input_x
+    _input_circle.y = _input_y
+    drawCircle(_input_circle, '100, 100, 255, 1.0', _ctx)
+
+    showPrameterText(_input_x, _input_y, local_x, local_y)
+  }
+
   const pointer_event = (e) => {
 
     if (e.buttons != 0) {
 
       if (e.buttons == 1) {
 
-        input_x = e.offsetX / 2
-        input_y = e.offsetY / 2
+        _input_x = e.offsetX
+        _input_y = e.offsetY
       }
 
       if (e.buttons == 2) {
 
-        input_line1.x1 = Math.floor(e.offsetX / 2)
-        input_line1.y1 = Math.floor(e.offsetY / 2)
-        input_line3.x1 = input_line1.x1
-        input_line3.y1 = input_line1.y1
+        _input_line1.x1 = e.offsetX
+        _input_line1.y1 = e.offsetY
+        _input_line3.x1 = _input_line1.x1
+        _input_line3.y1 = _input_line1.y1
       }
 
       draw()
@@ -231,9 +233,9 @@ window.onload = () => {
     e.preventDefault()
   }
 
-  canvas.onpointerdown = pointer_event
-  canvas.onpointermove = pointer_event
-  canvas.oncontextmenu  = (e) => { e.preventDefault() }
+  _canvas.onpointerdown = pointer_event
+  _canvas.onpointermove = pointer_event
+  _canvas.oncontextmenu  = (e) => { e.preventDefault() }
 
-  draw()
+  draw(_imageData, _canvas, _ctx)
 }

@@ -14,8 +14,8 @@
 
       canvas {
         border: solid 1px #888;
-        width: 800px;
-        height: 800px;
+        width: 400px;
+        height: 400px;
         image-rendering: pixelated;
       }
 
@@ -37,17 +37,21 @@
 </head>
 <body>
     <nav>
-      <a href="https://qiita.com/advent-calendar/2022/webgraphics">Webグラフィックス Advent calendar 2022 7日目</a>
+      <a href="https://qiita.com/advent-calendar/2022/webgraphics">Webグラフィックス Advent calendar 2022 11日目</a>
     </nav>
     <h1>Canvas2D ４点グラデーションの実装実験</h1>
     <p>作成者：柏崎ワロタロ</p>
     <canvas id="canvas"></canvas>
     <div class="inputs">
       <div>
+        キャンバスを左クリックするとその位置の四角内で正規化された座標を表示します。
+        右クリックすると四角の形状を一部変更できます。
+      </div>
+      <div>
         <label><span>入力座標:</span><span id="input-text"></span></label>
       </div>
       <div>
-        <label><span>ローカル座標:</span><span id="result-text"></span></label>
+        <label><span>正規化された座標:</span><span id="result-text"></span></label>
       </div>
       <div id="log">
       </div>
