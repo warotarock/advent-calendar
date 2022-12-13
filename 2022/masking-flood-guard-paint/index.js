@@ -19,11 +19,9 @@ window.onload = () => {
       const point = {
         location: [padding + x, y],
         length: 0.0,
-        invMat2d: [
-          0.0, 0.0,
-          0.0, 0.0,
-          0.0, 0.0
-        ]
+        angle: 0.0,
+        mat2d: [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ],
+        invMat2d: [ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ]
       }
 
       points.push(point)
@@ -55,14 +53,21 @@ window.onload = () => {
         const nx = dx / from_point.length
         const ny = dy / from_point.length
 
-        const angle = Math.atan2(ny, nx)
+        const angle = atan2Rounded(ny, nx)
   
-        from_point.invMat2d[0] = Math.cos(-angle)
-        from_point.invMat2d[1] = Math.sin(-angle)
-        from_point.invMat2d[2] = -Math.sin(-angle)
-        from_point.invMat2d[3] = Math.cos(-angle)
-        from_point.invMat2d[4] = -from_point.location[0]
-        from_point.invMat2d[5] = -from_point.location[1]
+        from_point.angle = angle
+        from_point.mat2d[0] = Math.cos(angle)
+        from_point.mat2d[1] = -Math.sin(angle)
+        from_point.mat2d[2] = Math.sin(angle)
+        from_point.mat2d[3] = Math.cos(angle)
+        from_point.mat2d[4] = from_point.location[0]
+        from_point.mat2d[5] = from_point.location[1]
+        from_point.invMat2d[0] = from_point.mat2d[0]
+        from_point.invMat2d[1] = from_point.mat2d[2]
+        from_point.invMat2d[2] = from_point.mat2d[1]
+        from_point.invMat2d[3] = from_point.mat2d[3]
+        from_point.invMat2d[4] = -(from_point.mat2d[4] * from_point.mat2d[0] + from_point.mat2d[5] * from_point.mat2d[1])
+        from_point.invMat2d[5] = -(from_point.mat2d[4] * from_point.mat2d[2] + from_point.mat2d[5] * from_point.mat2d[3])
       }
     }
 
@@ -176,58 +181,140 @@ window.onload = () => {
 
   function collectOcclusionMap(occlusionMap, center_location, radius, border_segments) {
 
-    const circlar_samplingLength = Math.floor(radius * 2 * Math.PI)
+    const occlusionMapLength = Math.floor(radius * 2 * Math.PI)
+    const occlusionMap_unitAngle = Math.PI * 2 / occlusionMapLength
 
-    if (occlusionMap.data.length < circlar_samplingLength) {
+    if (occlusionMap.data.length < occlusionMapLength) {
 
-      occlusionMap.data = new Float32Array(circlar_samplingLength)
+      occlusionMap.data = new Float32Array(occlusionMapLength)
     }
 
-    const local_location = [0.0, 0.0]
+    occlusionMap.data.fill(0.0)
+
+    const intersected_segements = []
+    const radiusSq = radius * radius
+    for (const segment of border_segments) {
+
+      const distanceSq = pointToSegmentSorroundingDistanceSq(
+        center_location,
+        segment.from_point.location,
+        segment.to_point.location,
+      )
+
+      if (distanceSq <= radiusSq) {
+
+        intersected_segements.push(segment)
+      }
+    }
+
     const local_center = [0.0, 0.0]
-    const unit_angle = Math.PI * 2 / circlar_samplingLength
+    for (const segement of intersected_segements) {
 
-    for (let angleIndex = 0; angleIndex < circlar_samplingLength; angleIndex++) {
+      traslateMat2d(local_center, center_location, segement.from_point.invMat2d)
 
-      const angle = unit_angle * angleIndex
-      const x = center_location[0] + Math.cos(angle) * radius
-      const y = center_location[1] - Math.sin(angle) * radius
+      if (Math.abs(local_center[1]) >= radius) {
+        continue
+      }
 
-      occlusionMap.data[angleIndex] = 0.0
+      const dy = -local_center[1]
+      const dx = Math.sqrt(radius * radius - dy * dy)
 
-      let min_distance = radius
-      for (const segement of border_segments) {
+      let left_intersect_locationX = local_center[0] - dx
+      if (left_intersect_locationX < 0.0) {
+        left_intersect_locationX = 0.0
+      }
 
-        traslateMat2d(local_location, x, y, segement.from_point.invMat2d)
-        traslateMat2d(local_center, center_location[0], center_location[1], segement.from_point.invMat2d)
+      const local_leftSideAngle = atan2Rounded(dy, left_intersect_locationX - local_center[0])
+      const world_leftSideAngle = roundAngle(segement.from_point.angle + local_leftSideAngle)
 
-        const isUpSide = (local_location[1] > 0 && local_center[1] < 0)
-        const isDownSide = (local_location[1] < 0 && local_center[1] > 0)
+      let right_intersect_locationX = local_center[0] + dx
+      if (right_intersect_locationX > segement.length) {
+        right_intersect_locationX = segement.length
+      }
 
-        if (isUpSide || isDownSide) {
+      const local_rightSideAngle = atan2Rounded(dy, right_intersect_locationX - local_center[0])
 
-          const dx = local_location[0] - local_center[0]
-          const dy = local_location[1] - local_center[1]
-          
-          const offset_y = -local_center[1]
-          const offset_x = dx / dy * offset_y
-          const crossing_x = local_center[0] + offset_x
+      const angleDistance = local_rightSideAngle - local_leftSideAngle
+      
+      const scanDirection = Math.sign(angleDistance) 
+      
+      let angleDistanceRouded = Math.abs(angleDistance)
+      if (angleDistanceRouded >= Math.PI) {
+        angleDistanceRouded -= Math.PI
+      }
+      
+      const max_angleIndexCount = Math.abs(Math.floor(angleDistanceRouded / occlusionMap_unitAngle)) + 1
 
-          if (crossing_x >= 0.0 && crossing_x <= segement.length) {
+      const offset_y = -local_center[1]
+      const scan_unitAngle = occlusionMap_unitAngle * scanDirection
+      let angleIndex = Math.floor(world_leftSideAngle / occlusionMap_unitAngle)
+      for (let angleIndexCount = 0; angleIndexCount < max_angleIndexCount; angleIndexCount++) {
 
-            const distance = Math.sqrt(offset_x * offset_x + offset_y * offset_y)
+        const angle = local_leftSideAngle + angleIndexCount * scan_unitAngle
 
-            if (distance < min_distance) {
+        // angleで傾きが決まる直線とy=0との交点を計算します。式を整理するとtanを使った式で計算できます。
+        // const angle_dx = Math.cos(angle) * radius
+        // const angle_dy = -Math.sin(angle) * radius
+        // const offset_x = angle_dx / angle_dy * offset_y
+        const offset_x = offset_y / Math.tan(angle)
 
-              min_distance = distance
-              occlusionMap.data[angleIndex] = distance
-            }
-          }
+        const distance = Math.sqrt(offset_x * offset_x + offset_y * offset_y)
+
+        const dest_distance = occlusionMap.data[angleIndex]
+        if (dest_distance == 0.0 || dest_distance > distance) {
+
+          occlusionMap.data[angleIndex] = distance
+        }
+
+        angleIndex += scanDirection
+        if (angleIndex >= occlusionMapLength) {
+          angleIndex = 0
+        }
+        else if (angleIndex < 0) {
+          angleIndex += occlusionMapLength
         }
       }
     }
 
-    occlusionMap.length = circlar_samplingLength
+    occlusionMap.length = occlusionMapLength
+  }
+
+  function pointToSegmentSorroundingDistanceSq(point, segment_point1, segment_point2) {
+
+    // 参考: https://zenn.dev/boiledorange73/articles/0037-js-distance-pt-seg
+
+    const x0 = point[0]
+    const y0 = point[1]
+    const x1 = segment_point1[0]
+    const y1 = segment_point1[1]
+    const x2 = segment_point2[0]
+    const y2 = segment_point2[1]
+    const a = x2 - x1
+    const b = y2 - y1
+    const a2 = a * a
+    const b2 = b * b
+    const r2 = a2 + b2
+
+    if (r2 < 0.000001) {
+
+      return (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1)
+    }
+
+    const tt = -(a * (x1 - x0) + b * (y1 - y0))
+
+    if (tt < 0) {
+
+      return (x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0)
+    }
+
+    if (tt > r2) {
+
+      return (x2 - x0) * (x2 - x0) + (y2 - y0) * (y2 - y0)
+    }
+
+    const f1 = a * (y1 - y0) - b * (x1 - x0)
+
+    return (f1 * f1) / r2
   }
   
   function setOcclusionMapImageToImageData(occlusionMap_imageData, occlusionMap, radius, color) {
@@ -407,13 +494,37 @@ window.onload = () => {
     return (f1 * f1) / r2
   }
 
-  function traslateMat2d(result, x, y, mat2d) {
+  function atan2Rounded(y, x) {
 
-    const lx = x + mat2d[4]
-    const ly = y + mat2d[5]
+    let angle = Math.atan2(-y, x)
 
-    result[0] = lx * mat2d[0] + ly * mat2d[2]
-    result[1] = lx * mat2d[1] + ly * mat2d[3]
+    if (angle < 0.0) {
+      angle += Math.PI * 2
+    }
+
+    return roundAngle(angle)
+  }
+
+  function roundAngle(angle) {
+
+    if (angle < 0.0) {
+      angle += Math.PI * 2
+    }
+
+    if (angle >= Math.PI * 2) {
+      angle -= Math.PI * 2
+    }
+
+    return angle
+  }
+
+  function traslateMat2d(result, target, mat2d) {
+
+    const x = target[0]
+    const y = target[1]
+
+    result[0] = x * mat2d[0] + y * mat2d[2] + mat2d[4]
+    result[1] = x * mat2d[1] + y * mat2d[3] + mat2d[5]
   }
 
   function drawStroke(ctx, points, rgb_color) {
