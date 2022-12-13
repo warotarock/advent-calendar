@@ -130,19 +130,7 @@ window.onload = () => {
 
   function clearMaskData(maskData) {
 
-    const mask_data = maskData.data
-
-    for (let y = 0; y < maskData.height; y++) {
-
-      let mask_offset = y * maskData.lineBytes
-
-      for (let x = 0; x < maskData.width; x++) {
-
-        mask_data[mask_offset] = 0
-
-        mask_offset += maskData.pixelBytes
-      }
-    }
+    maskData.data.fill(0)
   }
 
   function setMaskImageToImageData(maskImageData, maskData, color) {

@@ -266,9 +266,7 @@ window.onload = () => {
 
   function clearImageData(data) {
 
-    for (let index = 0; index < data.length; index++) {
-      data[index] = 0
-    }
+    data.fill(0)
   }
 
   function setRadialGradation(gridRows, centerX, centerY, radius, color, brush_alpha, waveEnabled) {
