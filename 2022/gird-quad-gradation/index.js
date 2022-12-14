@@ -1,6 +1,5 @@
 
 class LineParameter {
-  
   xa = 0.0
   xb = 0.0
   ya = 0.0
@@ -13,51 +12,15 @@ class LineParameter {
 
 window.onload = () => {
 
-  const canvas = document.getElementById('canvas')
-  canvas.width = 400
-  canvas.height = 400
-
-  const ctx = canvas.getContext('2d', { antiAliasingEnabled: false })
-  const imageData = ctx.createImageData(canvas.width, canvas.height)
-  const canvasWidth = canvas.width
-  const canvasHeight = canvas.height
-  const pixelBytes = 4
-  const lineBytes = canvas.width * pixelBytes
-
-  const brushColors = [
-    [0.0, 0.0, 0.0],
-    [0.0, 0.0, 1.0],
-    [1.0, 0.0, 0.0],
-    [1.0, 0.0, 1.0],
-    [0.0, 1.0, 0.0],
-    [0.0, 1.0, 1.0],
-    [1.0, 1.0, 0.0],
-    [1.0, 1.0, 1.0],
-  ]
-
-  const draw_color1 = [0.0, 0.0, 0.0]
-  const draw_color2 = [0.0, 0.0, 0.0]
-  const draw_color3 = [0.0, 0.0, 0.0]
-
-  let input_x = 0
-  let input_y = 0
-
-  const gridLeft = 50
-  const gridTop = 50
-  const gridSizeH = 20
-  const gridSizeV = 20
-  const gridCellSize = 15
-  const gridData = createGridData(gridLeft, gridTop, gridSizeH, gridSizeV, gridCellSize)
-
-  function createGridData(left, top, gridWidth, girdHeight, cellSize) {
+  function createGridData({ left, top, gridSizeH, gridSizeV, cellSize}) {
 
     const grid_rows = []
 
-    for (let y = 0; y <= girdHeight; y++) {
+    for (let y = 0; y <= gridSizeV; y++) {
       
       const row_points = []
 
-      for (let x = 0; x <= gridWidth; x++) {
+      for (let x = 0; x <= gridSizeH; x++) {
 
         const point_x = left + x * cellSize
         const point_y = top + y * cellSize
@@ -82,9 +45,9 @@ window.onload = () => {
       grid_rows.push(row_points)
     }
 
-    for (let y = 0; y < girdHeight; y++) {
+    for (let y = 0; y < gridSizeV; y++) {
       
-      for (let x = 0; x < gridWidth; x++) {
+      for (let x = 0; x < gridSizeH; x++) {
 
         const point = grid_rows[y][x]
 
@@ -203,14 +166,20 @@ window.onload = () => {
     }
   }
 
-  function drawQuadGradation(line1_param, line2_param, line3_param, line4_param, color1, color2, color3, color4) {
+  function drawQuadGradation(imageData, line1_param, line2_param, line3_param, line4_param, color1, color2, color3, color4) {
 
     const minX = Math.max(Math.min(line1_param.minX, line2_param.minX, line3_param.minX, line4_param.minX), 0)
     const minY = Math.max(Math.min(line1_param.minY, line2_param.minY, line3_param.minY, line4_param.minY), 0)
-    const maxX = Math.min(Math.max(line1_param.maxX, line2_param.maxX, line3_param.maxX, line4_param.maxX), canvasWidth - 1)
-    const maxY = Math.min(Math.max(line1_param.maxY, line2_param.maxY, line3_param.maxY, line4_param.maxY), canvasHeight - 1)
+    const maxX = Math.min(Math.max(line1_param.maxX, line2_param.maxX, line3_param.maxX, line4_param.maxX), imageData.width - 1)
+    const maxY = Math.min(Math.max(line1_param.maxY, line2_param.maxY, line3_param.maxY, line4_param.maxY), imageData.height - 1)
 
     const pixData = imageData.data
+    const pixelBytes = 4
+    const lineBytes = imageData.width * pixelBytes
+
+    const draw_color1 = [0.0, 0.0, 0.0]
+    const draw_color2 = [0.0, 0.0, 0.0]
+    const draw_color3 = [0.0, 0.0, 0.0]
 
     for (let y = minY; y <= maxY; y++) {
 
@@ -293,7 +262,7 @@ window.onload = () => {
     }
   }
 
-  function drawGridGradation(gridRows) {
+  function drawGridGradation(imageData, gridRows) {
 
     for (const gridRow of gridRows) {
 
@@ -306,6 +275,7 @@ window.onload = () => {
         calclatePointLineParameter(gridPoint)
 
         drawQuadGradation(
+          imageData,
           gridPoint.line1,
           gridPoint.line2,
           gridPoint.line3,
@@ -319,7 +289,7 @@ window.onload = () => {
     }
   }
 
-  function drawLine(x1, y1, x2, y2, rgb_color) {
+  function drawLine(x1, y1, x2, y2, rgb_color, ctx) {
 
     ctx.strokeStyle = `rgb(${rgb_color})`
     ctx.beginPath()
@@ -328,7 +298,7 @@ window.onload = () => {
     ctx.stroke()
   }
 
-  function drawGridLine() {
+  function drawGridLines(gridData, ctx) {
 
     const lineColor = '255, 255, 255, 0.3'
     for (const gridRow of gridData) {
@@ -339,39 +309,69 @@ window.onload = () => {
           continue
         }
 
-        drawLine(gridPoint.x - 1, gridPoint.y, gridPoint.rightPoint.x - 1, gridPoint.rightPoint.y, lineColor)
-        drawLine(gridPoint.x, gridPoint.y + 1, gridPoint.belowPoint.x, gridPoint.belowPoint.y - 1, lineColor)
+        drawLine(gridPoint.x - 1, gridPoint.y, gridPoint.rightPoint.x - 1, gridPoint.rightPoint.y, lineColor, ctx)
+        drawLine(gridPoint.x, gridPoint.y + 1, gridPoint.belowPoint.x, gridPoint.belowPoint.y - 1, lineColor, ctx)
       }
     }
   }
 
-  function draw(eraser) {
+  const _canvas = document.getElementById('canvas')
+  _canvas.width = 400
+  _canvas.height = 400
+  const _ctx = _canvas.getContext('2d', { antiAliasingEnabled: false })
+
+  const _imageData = _ctx.createImageData(_canvas.width, _canvas.height)
+
+  const _brushColors = [
+    [0.0, 0.0, 0.0],
+    [0.0, 0.0, 1.0],
+    [1.0, 0.0, 0.0],
+    [1.0, 0.0, 1.0],
+    [0.0, 1.0, 0.0],
+    [0.0, 1.0, 1.0],
+    [1.0, 1.0, 0.0],
+    [1.0, 1.0, 1.0],
+  ]
+
+  let _input_x = 0
+  let _input_y = 0
+
+  const _gridData = createGridData({ left: 50, top: 50, gridSizeH: 20, gridSizeV: 20, cellSize: 15 })
+
+  function draw(drawBrush, eraser, ctx) {
 
     const input_radius = getRangeValue('circle-radius', 1)
     const showGrid = getRadioButtonValue('show-grid')
+    const modifyGridEnabled = getRadioButtonValue('modify-grid')
     const waveEnabled = getRadioButtonValue('wave')
     const colorIndex = getRadioButtonValue('color')
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.clearRect(0, 0, _canvas.width, _canvas.height)
 
-    clearImageData(imageData.data)
+    clearImageData(_imageData.data)
 
-    modifyGridDataByFishEye(gridData, input_x, input_y, input_radius, eraser)
+    if (modifyGridEnabled == 1) {
+      
+      modifyGridDataByFishEye(_gridData, _input_x, _input_y, input_radius, eraser)
+    }
 
-    const color = (eraser ? [0.0, 0.0, 0.0] : brushColors[colorIndex])
-    const brush_alpha = (eraser ? 0.2 : 0.1)
-    setRadialGradation(gridData, input_x, input_y, input_radius, color, brush_alpha, waveEnabled == 1)
+    if (drawBrush) {
 
-    drawGridGradation(gridData)
+      const color = (eraser ? [0.0, 0.0, 0.0] : _brushColors[colorIndex])
+      const brush_alpha = (eraser ? 0.2 : 0.1)
+      setRadialGradation(_gridData, _input_x, _input_y, input_radius, color, brush_alpha, waveEnabled == 1)
+    }
 
-    ctx.putImageData(imageData, 0, 0)
+    drawGridGradation(_imageData, _gridData)
+
+    ctx.putImageData(_imageData, 0, 0)
 
     if (showGrid == 1) {
 
-      drawGridLine()
+      drawGridLines(_gridData, ctx)
     }
 
-    showPrameterText(input_x, input_y, input_radius)
+    showPrameterText()
   }
 
   function getRangeValue(id, division) {
@@ -404,37 +404,38 @@ window.onload = () => {
     document.getElementById(id).innerHTML = text
   }
 
-  function showPrameterText(x, y, circleRadius) {
+  function showPrameterText() {
 
-    setText('input-text', `(${x.toFixed(1)}, ${y.toFixed(1)})`)
-    setText('circle-radius-text', `${circleRadius.toFixed(1)}`)
+    const input_radius = getRangeValue('circle-radius', 1)
+
+    setText('input-text', `(${_input_x.toFixed(1)}, ${_input_y.toFixed(1)})`)
+    setText('circle-radius-text', `${input_radius.toFixed(1)}`)
   }
 
   const pointer_event = (e) => {
 
     if (e.buttons != 0) {
 
-      input_x = e.offsetX / 2
-      input_y = e.offsetY / 2
+      _input_x = e.offsetX / 2
+      _input_y = e.offsetY / 2
 
       const eraser = (e.buttons == 2)
 
-      draw(eraser)
+      draw(true, eraser, _ctx)
     }
 
     e.preventDefault()
   }
 
-  canvas.onpointerdown = pointer_event
-  canvas.onpointermove = pointer_event
-  canvas.oncontextmenu  = (e) => { e.preventDefault() }
+  _canvas.onpointerdown = pointer_event
+  _canvas.onpointermove = pointer_event
+  _canvas.oncontextmenu  = (e) => { e.preventDefault() }
 
   document.getElementById('circle-radius').onchange = () => {
-    draw(false)
+    showPrameterText()
   }
 
-  setRadioButtonEvent('show-grid', () => { draw() })
-  setRadioButtonEvent('wave', () => { draw() })
+  setRadioButtonEvent('show-grid', () => { draw(false, false, _ctx) })
 
-  draw(false)
+  draw(false, false, _ctx)
 }
