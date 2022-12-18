@@ -1,3 +1,11 @@
+<head>
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:site" content="柏崎ワロタロ">
+  <meta name="twitter:title" content="ELECOMのキーボードのあの名機を5台持ってるPGの自キ活2022年">
+  <meta name="twitter:description" content="今年は粘土でキーボードのモックを作ったり、マウスのアタッチメントを作ったり、レジンでキートップを作ったりと思いつきで色々やったのでご紹介します。">
+  <meta name="twitter:image" content="https://warotarock.github.io/advent-calendar/2022/my-dream-keyboard-2022/twitter-card-square.png">
+</head>
+
 # ELECOMのキーボードのあの名機を5台持ってるPGの自キ活2022年
 
 （このタイトルには、再販しないかなーというそこはかとない淡い期待をこめています）
