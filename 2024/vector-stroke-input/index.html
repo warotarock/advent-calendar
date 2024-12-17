@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Canvas Stroke Recorder</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+      width: 500px;
+      height: 500px;
+      touch-action: none;
+    }
+
+    textarea {
+      width: 500px;
+      height: 250px;
+    }
+
+    section {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <section>
+    <h1>Stroke Iput Optimizing</h1>
+    <p>ストローク入力の最適化処理のサンプルです。</p>
+  </section>
+  <section>
+    <div>
+      <label>
+        <input type="radio" name="strokeIO" value="SmallStepReduction" checked>
+        間引き
+      </label>
+      <label>
+        <input type="radio" name="strokeIO" value="CornerSplit">
+        間引き＋直角で分割
+      </label>
+    </section>
+    <section>
+        <label>
+        間引き距離
+        <input type="text" id="stepDistanceInput" placeholder="間引き距離" value="10.0">
+      </label>
+    </div>
+  </section>
+  <section>
+    <canvas id="main-canvas"></canvas>
+  </section>
+  <section>
+    <p>ストローク情報</p>
+    <textarea id="stroke-points" cols="30" rows="10"></textarea>
+  </section>
+  <script type="module">
+    import { Main } from './dist/main.js';
+    new Main();
+  </script>
+</body>
+</html>

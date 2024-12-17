@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Canvas Stroke Recorder</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+      width: 500px;
+      height: 500px;
+      touch-action: none;
+    }
+
+    textarea {
+      width: 500px;
+    }
+
+      textarea#stroke-points {
+        height: 250px;
+      }
+
+      textarea#json-output {
+        height: 70px;
+      }
+
+    section {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <section>
+    <h1>Stroke Iput Optimizing</h1>
+    <p>ストローク入力の最適化処理のサンプルです。</p>
+  </section>
+  <section>
+    <div>
+      <label>
+        <input type="radio" name="strokeIO" value="SmallStepReduction">
+        単純間引き
+      </label>
+      <label>
+        <input type="radio" name="strokeIO" value="CornerSplit" checked>
+        間引き＋鋭角と直角で分割
+      </label>
+    </section>
+    <section>
+        <label>
+        間引き距離
+        <input id="stepDistanceInput" placeholder="間引き距離" value="6.0" type="number" step="0.1">
+      </label>
+    </div>
+  </section>
+  <section>
+    <canvas id="main-canvas"></canvas>
+  </section>
+  <section>
+    <p>ストローク情報</p>
+    <textarea id="stroke-points" cols="30" rows="10"></textarea>
+  </section>
+  <section>
+    <p>JSON出力</p>
+    <textarea id="json-output" cols="30" rows="10"></textarea>
+  </section>
+  <section>
+    <button id="export-json">入力データ取得</button>
+    <button id="import-json">入力データ再生</button>
+  </section>
+  <script type="module">
+    import { Main } from './dist/main.js';
+    document.addEventListener('DOMContentLoaded', () => {
+      const main = new Main();
+    });
+  </script>
+</body>
+</html>
