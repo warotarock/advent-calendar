@@ -1,0 +1,159 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Simple posing tool (Experimental)</title>
+    <link rel="stylesheet" href="app.css" type="text/css" />
+    <script src="./external/glmatrix/gl-matrix-min.js"></script>
+    <script src="./src/conversion.js"></script>
+    <script src="./src/render2d.js"></script>
+    <script src="./src/render3d.js"></script>
+    <script src="./src/data.js"></script>
+    <script src="./src/logic_math.js"></script>
+    <script src="./src/logic_points.js"></script>
+    <script src="./src/logic_hittest.js"></script>
+    <script src="./src/logic_selector.js"></script>
+    <script src="./src/logic_edit_line.js"></script>
+    <script src="./src/base_command.js"></script>
+    <script src="./src/base_tool.js"></script>
+    <script src="./src/tool_draw_line.js"></script>
+    <script src="./src/tool_scratch_line.js"></script>
+    <script src="./src/tool_add_point.js"></script>
+    <script src="./src/tool_select_brush_select.js"></script>
+    <script src="./src/tool_delete_points.js"></script>
+    <script src="./src/tool_posing3d.js"></script>
+    <script src="./src/posing3d_logic.js"></script>
+    <script src="./src/posing3d_view.js"></script>
+    <script src="./src/app.js"></script>
+    <style>
+
+        html {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+        }
+
+        header {
+            width: 100%;
+            height: 40px;
+            max-width: 1000px;
+            background-color: #fff;
+            position: absolute;
+            top: 0;
+            text-align: center;
+            padding-top: 8px;
+        }
+
+        div.systemButton {
+            width: 30px;
+            height: 30px;
+            float: left;
+            border: solid;
+            border-width: 1px;
+            margin-top: 5px;
+            margin-left: 2%;
+        }
+
+        div.mainMenuButton {
+            width: 500px;
+            height: 25px;
+            float: left;
+            border: solid;
+            border-width: 1px;
+            margin-top: 5px;
+            margin-left: 5px;
+            text-align: center;
+            padding-top: 5px;
+        }
+
+        main {
+            position: absolute;
+            left: 2%;
+            right: 1%;
+            top: 40px;
+            bottom: 60px;
+            max-width: 1000px;
+            max-height: 920px;
+        }
+
+        footer {
+            width: 100%;
+            max-width: 1000px;
+            height: 60px;
+            background-color: #fff;
+            position: absolute;
+            bottom: 0;
+            text-align: center;
+        }
+
+        div#mainCanvasWindow {
+            width: 78%;
+            height: 99%;
+            float: left;
+            border: solid;
+            border-width: 1px;
+        }
+
+        div#rightSideWindow {
+            width: 20%;
+            height: 99%;
+            float: left;
+            border: solid;
+            border-width: 1px;
+        }
+
+        canvas#webglCanvas {
+            position: absolute;
+            border: none;
+            z-index: 1;
+        }
+
+        canvas#mainCanvas {
+            position: absolute;
+            border: none;
+            z-index: 2;
+        }
+
+        canvas#editorCanvas {
+            position: absolute;
+            border: none;
+            z-index: 3;
+        }
+
+        canvas#layerCanvas {
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <!--
+        <div class="systemButton" id="menu_btnSystem"></div>
+        <div class="mainMenuButton" id="menu_btnDrawTool">Draw line</div>
+        <div class="mainMenuButton" id="menu_btnScratchTool">Scratch line</div>
+        <div class="mainMenuButton" id="menu_btnPoseTool">Pose" by Warotaro</div>
+        -->
+        <a href="https://qiita.com/advent-calendar/2017/webgl">WebGL Advent calendar 2017</a> Day 11th  "Simple posing tool" by Warotaro
+    </header>
+    <main>
+        <div id="mainCanvasWindow">
+            <canvas id="webglCanvas"></canvas>
+            <canvas id="mainCanvas"></canvas>
+            <canvas id="editorCanvas"></canvas>
+        </div>
+        <div id="rightSideWindow">
+            <canvas id="layerCanvas"></canvas>
+        </div>
+    </main>
+    <footer id="footer">
+    </footer>
+</body>
+</html>
