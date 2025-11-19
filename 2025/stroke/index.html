@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>幾何学的な理解によるシンプレックスノイズの実装実験</title>
+  <script src="./dist/main.js"></script>
+  <style>
+    html {
+      padding: 0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: max-content;
+      padding: 0.5em;
+    }
+
+    canvas {
+      border-style: solid;
+      border-width: 1px;
+    }
+
+    .controls {
+      margin-bottom: 1em;
+    }
+
+    .controls label {
+      display: inline-block;
+      min-width: 5em;
+    }
+
+    .controls input[type="range"] {
+      width: 15em;
+    }
+
+    .controls .shader-selection {
+      grid-column: span 2;
+      display: flex;
+    }
+
+    .controls .shader-selection input {
+      margin-top: -0.2em;
+      vertical-align: middle;
+      line-height: 3.5em;
+    }
+
+    .controls .shader-selection label {
+      min-width: 1em;
+      margin-inline-end: 2em;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>幾何学的な理解によるシンプレックスグリッドの実装実験</h1>
+  <div class="controls">
+    <fieldset class="shader-selection">
+      <legend>シェーダ</legend>
+      <div>
+        <input type="radio" id="shader_pattern" name="shader" value="pattern" checked><label for="shader_pattern">パターン</label>
+      </div>
+      <div>
+        <input type="radio" id="shader_grid" name="shader" value="grid"><label for="shader_grid">グリッドのみ</label>
+      </div>
+      <div>
+        <input type="radio" id="shader_simple" name="shader" value="simple"><label for="shader_simple">座標の向き（X:赤、Y:緑）</label>
+      </div>
+    </fieldset>
+  </div>
+  <div id="drawer">
+    <canvas id="mainCanvas" width="800" height="800"></canvas>
+  </div>
+  <div id="debug">
+  </div>
+</body>
+
+</html>

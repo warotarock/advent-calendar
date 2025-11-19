@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>幾何学的な理解によるシンプレックスノイズの実装実験</title>
+  <script src="./dist/bundle.js"></script>
+  <style>
+    html {
+      padding: 0;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: max-content;
+      padding: 0.5em;
+    }
+
+    h1 {
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+
+    p {
+      margin-top: 0.2em;
+      margin-bottom: 1em;
+    }
+
+    canvas {
+      border-style: solid;
+      border-width: 1px;
+    }
+
+    .controls {
+      display: flex;
+      margin-bottom: 1em;
+    }
+
+    .controls .shader-selection {
+      display: inline-flex;
+    }
+
+    .controls .shader-selection input {
+      margin-top: -0.2em;
+      vertical-align: middle;
+      line-height: 3.5em;
+    }
+
+    .controls .shader-selection label {
+      min-width: 1em;
+      margin-inline-end: 2em;
+      vertical-align: middle;
+    }
+
+    .controls button {
+      padding-left: 1em;
+      padding-right: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>幾何学的な理解によるシンプレックスグリッドの実装実験</h1>
+  <p>グラフィックス全般 Advent Calendar 2025 1日目 作者：柏崎ワロタロ</p>
+  <div class="controls">
+    <div class="shader-selection">
+      <div>
+        <input type="radio" id="shader_pattern" name="shader" value="pattern" checked><label for="shader_pattern">パターン</label>
+      </div>
+      <div>
+        <input type="radio" id="shader_grid" name="shader" value="grid"><label for="shader_grid">グリッドのみ</label>
+      </div>
+      <div>
+        <input type="radio" id="shader_noise" name="shader" value="noise"><label for="shader_noise">シンプレックスノイズ</label>
+      </div>
+      <div>
+        <input type="radio" id="shader_color" name="shader" value="color"><label for="shader_color">座標の向き参考（X:赤、Y:緑）</label>
+      </div>
+    </div>
+    <button type="button" id="btn_pause">停止</button>
+  </div>
+  <div id="drawer">
+    <canvas id="mainCanvas" width="800" height="800"></canvas>
+  </div>
+</body>
+</html>

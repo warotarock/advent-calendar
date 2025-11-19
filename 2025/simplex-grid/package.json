@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "esbuild watch": "npx esbuild --bundle --watch --sourcemap --outfile=./dist/bundle.js ./main.ts",
+    "esbuild build": "npx esbuild --bundle --outfile=./dist/bundle.js ./main.ts",
+    "tsc type check": "tsc --noEmit"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
