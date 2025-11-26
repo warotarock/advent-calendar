@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>順序に依存しない重み付き色合成</title>
+  <script src="./dist/bundle.js"></script>
+  <style>
+    html {
+      padding: 0;
+    }
+
+    body {
+      font-family: sans-serif;
+      background: #f6f6f6;
+      padding: 20px;
+    }
+
+    canvas {
+      border: 1px solid #ccc;
+      margin: 0;
+    }
+
+    input[type="color"] {
+      width: 60px;
+      height: 30px;
+      border: none;
+    }
+
+    input[type="range"] {
+      width: 120px;
+    }
+
+    label {
+      font-size: 0.9em;
+    }
+
+    .canvas-container {
+      position: relative;
+      display: inline-block;
+      background-image: url('transparent_medium.png');
+      border-radius: 8px;
+      overflow: hidden;
+      width: 400px;
+      height: 200px;
+    }
+
+    .canvas-text {
+      position: absolute;
+      bottom: 0.8em;
+      left: 0.8em;
+    }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      margin: 4px 0;
+      gap: 8px;
+    }
+
+    .controls {
+      margin-top: 10px;
+    }
+
+    .methods-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>順序に依存しない重み付き色合成</h1>
+  <p>グラフィックス全般 Advent Calendar 2025 1日目 作者：柏崎ワロタロ</p>
+  <div class="methods-container">
+    <div class="method-container" id="method-container1">
+      <h2>ストレートアルファ（順序依存）</h2>
+      <div class="canvas-container">
+        <canvas class="preview-canvas" width="400" height="200"></canvas>
+        <div class="canvas-text"></div>
+      </div>
+      <div>
+        <button type="button" class="addColor">＋ 色を追加</button>
+        <button type="button" class="removeColor">－ 色を削除</button>
+      </div>
+      <div class="controls"></div>
+    </div>
+    <div class="method-container" id="method-container2">
+      <h2>乗算済みアルファ</h2>
+      <div class="canvas-container">
+        <canvas class="preview-canvas" width="400" height="200"></canvas>
+        <div class="canvas-text"></div>
+      </div>
+      <div>
+        <button type="button" class="addColor">＋ 色を追加</button>
+        <button type="button" class="removeColor">－ 色を削除</button>
+      </div>
+      <div class="controls"></div>
+    </div>
+    <div class="method-container" id="method-container3">
+      <h2>OKLCh</h2>
+      <div class="canvas-container">
+        <canvas class="preview-canvas" width="400" height="200"></canvas>
+        <div class="canvas-text"></div>
+      </div>
+      <div>
+        <button type="button" class="addColor">＋ 色を追加</button>
+        <button type="button" class="removeColor">－ 色を削除</button>
+      </div>
+      <div class="controls"></div>
+    </div>
+  </div>
+</body>
+
+</html>
