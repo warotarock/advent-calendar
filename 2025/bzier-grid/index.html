@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas2D グラデーションベジエグリッドの実装実験</title>
+    <style>
+      body {
+        background-color: #000;
+        color: #888;
+      }
+
+      a {
+        color: #88f;
+      }
+
+      canvas {
+        border: solid 1px #888;
+        width: 800px;
+        height: 800px;
+        image-rendering: pixelated;
+      }
+
+      .inputs input[type=range] {
+        width: 30rem;
+      }
+
+      .inputs > div {
+        margin-block-start: 1rem;
+        padding-left: 1rem;
+      }
+
+      .inputs div label {
+        padding-right: 1rem;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      .inputs span {
+        display: inline-block;
+        min-width: 8rem;
+      }
+    </style>
+    <script src="dist/bundle.js" ></script>
+</head>
+<body>
+    <nav>
+      <a href="https://qiita.com/advent-calendar/2022/webgraphics">Webグラフィックス Advent calendar 2025 7日目</a>
+    </nav>
+    <h1>Canvas2D グラデーションベジエグリッドの実装実験</h1>
+    <p>作成者：柏崎ワロタロ</p>
+    <canvas id="canvas"></canvas>
+    <div class="inputs">
+      <div>
+        <label><span>入力座標:</span><span id="input-text"></span></label>
+      </div>
+      <div>
+        <label><span>半径:</span><input type="range" id="circle-radius" value="45" min="0" max="300"><span id="circle-radius-text"></span></label>
+      </div>
+      <div>色:
+        <label><input type="radio" name="color" value="0">黒</label>
+        <label><input type="radio" name="color" value="1" checked>青</label>
+        <label><input type="radio" name="color" value="2">赤</label>
+        <label><input type="radio" name="color" value="3">紫</label>
+        <label><input type="radio" name="color" value="4">緑</label>
+        <label><input type="radio" name="color" value="5">水</label>
+        <label><input type="radio" name="color" value="6">黄</label>
+        <label><input type="radio" name="color" value="7">白</label>
+      </div>
+      <div>変形効果:
+        <label><input type="radio" name="modify-grid" value="1" checked>ON</label>
+        <label><input type="radio" name="modify-grid" value="0">OFF</label>
+      </div>
+      <div>頂点補間:
+        <label><input type="radio" name="vertex-ipo" value="0" checked>ベジエ</label>
+        <label><input type="radio" name="vertex-ipo" value="1">線形</label>
+      </div>
+      <div>グリッド表示:
+        <label><input type="radio" name="show-grid" value="1" checked>ON</label>
+        <label><input type="radio" name="show-grid" value="0">OFF</label>
+      </div>
+      <div id="log">
+      </div>
+    </div>
+  </body>
+</html>
