@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>幾何学的な理解によるシンプレックスノイズの実装実験</title>
+  <title>単純な座標変換によるシンプレックスグリッドの試作</title>
   <script src="./dist/bundle.js"></script>
   <style>
     html {
@@ -14,8 +14,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: max-content;
+      width: 600px;
       padding: 0.5em;
+      font-size: 12px;
     }
 
     h1 {
@@ -40,6 +41,8 @@
 
     .controls .shader-selection {
       display: inline-flex;
+      flex-wrap: wrap;
+      gap: 0.8em;
     }
 
     .controls .shader-selection input {
@@ -51,17 +54,19 @@
     .controls .shader-selection label {
       min-width: 1em;
       margin-inline-end: 2em;
-      vertical-align: middle;
     }
 
     .controls button {
       padding-left: 1em;
       padding-right: 1em;
+      width: 5.5em;
+      height: 2.5em;
     }
+
   </style>
 </head>
 <body>
-  <h1>幾何学的な理解によるシンプレックスグリッドの実装実験</h1>
+  <h1>単純な座標変換によるシンプレックスグリッドの試作</h1>
   <p>グラフィックス全般 Advent Calendar 2025 1日目 作者：柏崎ワロタロ</p>
   <div class="controls">
     <div class="shader-selection">

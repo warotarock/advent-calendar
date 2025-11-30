@@ -454,10 +454,10 @@ void main() {
       rb.addEventListener("change", handleShaderChange);
     });
     const pauseButton = document.getElementById("btn_pause");
-    let isPaused = false;
+    let isPaused = true;
     function togglePause() {
       isPaused = !isPaused;
-      pauseButton.textContent = isPaused ? "\u518D\u958B" : "\u505C\u6B62";
+      pauseButton.textContent = isPaused ? "\u518D\u751F" : "\u505C\u6B62";
       if (!isPaused) {
         update();
       }
@@ -494,4 +494,3 @@ void main() {
   }
   document.addEventListener("DOMContentLoaded", main);
 })();
-//# sourceMappingURL=bundle.js.map

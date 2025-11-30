@@ -335,10 +335,10 @@ function main() {
 
   // 再生・停止ボタン
   const pauseButton = document.getElementById('btn_pause') as HTMLButtonElement
-  let isPaused = false
+  let isPaused = true
   function togglePause() {
     isPaused = !isPaused
-    pauseButton.textContent = isPaused ? '再開' : '停止'
+    pauseButton.textContent = isPaused ? '再生' : '停止'
     if (!isPaused) {
       update();
     }
