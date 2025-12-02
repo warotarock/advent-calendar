@@ -81,7 +81,8 @@ function createGridDataFromMesh(meshFileData: MeshFileData, displayDimension: nu
 }
 
 
-// AIが生成したCatmull-Clark細分割コードを改造し、色も補間できるようにしたもの
+///////////////////////////////////////////////////////////////////////////////////////
+// AIが生成したCatmull-Clark細分割コードをさらにAIが改造し、色も補間できるようにしたもの！たぶん動く！
 /**
  * Performs one iteration of Catmull-Clark Subdivision on the mesh, interpolating colors as well.
  */
@@ -607,6 +608,7 @@ async function main() {
   const _pointerLocation = [0, 0]
 
   function subdivide() {
+    // AIがちゃっちゃと書いたもの！たぶん動く！////////////////////////////////
     // 現在のグリッドデータをインデックスベースのデータに変換
     const subdivisionLevel = Math.floor(getRangeValue('subdivision-level', 1))
     let currentData = { gridPoints: _gridData.gridPoints, faces: _gridData.gridFaces.map(f => {
@@ -639,6 +641,7 @@ async function main() {
     });
 
     _subdivData = { gridPoints: currentData.gridPoints, gridFaces: newGridFaces };
+    ////////////////////////////////////////////////////////////////////////
   }
 
   function initializeGridData() {
