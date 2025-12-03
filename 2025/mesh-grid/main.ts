@@ -698,7 +698,9 @@ async function main() {
     ctx.putImageData(_imageData, 0, 0)
 
     if (showGrid == 1) {
-      drawGridLines(_gridData.gridFaces, '255, 255, 255, 0.2', ctx)
+      const showSubdividedGrid = getRadioButtonValue('show-subdivided-grid')
+      const gridToDraw = showSubdividedGrid == 1 ? _subdivData.gridFaces : _gridData.gridFaces
+      drawGridLines(gridToDraw, '255, 255, 255, 0.1', ctx)
     }
 
     showPrameterText()
@@ -749,6 +751,7 @@ async function main() {
 
   setRadioButtonEvent('show-grid', () => { draw(false, false, _ctx) })
   setRadioButtonEvent('vertex-ipo', () => { draw(false, false, _ctx) })
+  setRadioButtonEvent('show-subdivided-grid', () => { draw(false, false, _ctx) })
 
   loadModel(getSelectValue('model-select'))
 }

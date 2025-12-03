@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canvas2D グラデーションベジエグリッドの実装実験</title>
+    <title>Canvas2D SubDivなグリッドグラデーションの試作</title>
     <style>
       body {
         background-color: #000;
@@ -21,6 +21,11 @@
         image-rendering: pixelated;
       }
 
+      input[type="range"] {
+        vertical-align: middle;
+        margin-right: 0.5em;
+      }
+
       .inputs > div {
         margin-block-start: 1rem;
         padding-left: 1rem;
@@ -34,7 +39,12 @@
 
       .inputs span {
         display: inline-block;
-        min-width: 8rem;
+        min-width: 6rem;
+      }
+
+      .model-setting span {
+        display: inline-block;
+        min-width: 4rem;
       }
 
       #circle-radius {
@@ -51,18 +61,13 @@
     <nav>
       <a href="https://qiita.com/advent-calendar/2022/webgraphics">Webグラフィックス Advent calendar 2025 7日目</a>
     </nav>
-    <h1>Canvas2D グラデーションベジエグリッドの実装実験</h1>
+    <h1>Canvas2D SubDivなグリッドグラデーションの試作</h1>
     <p>作成者：柏崎ワロタロ</p>
     <canvas id="canvas"></canvas>
     <div class="inputs">
-      <div>
-        <label><span>入力座標:</span><span id="input-text"></span></label>
-      </div>
-      <div>
-        <label><span>半径:</span><input type="range" id="circle-radius" value="45" min="0" max="300"><span id="circle-radius-text"></span></label>
-      </div>
-      <div>
-        <label>モデル:
+      <div class="model-setting">
+        <label>
+          <span>モデル:</span>
           <select id="model-select">
             <option value="0" selected>Star</option>
             <option value="1">Torus</option>
@@ -71,27 +76,38 @@
             <option value="4">Min Triangle</option>
           </select>
         </label>
-        <label><span>細分割数:</span><input type="range" id="subdivision-level" value="1" min="0" max="3"><span id="subdivision-level-text"></span></label>
+        <label>
+          <span>細分割数:</span>
+          <input type="range" id="subdivision-level" value="1" min="0" max="3">
+          <span id="subdivision-level-text"></span>
+        </label>
       </div>
-      <div>色:
+      <div><span>グリッド線:</span>
+        <label><input type="radio" name="show-grid" value="1" checked>ON</label>
+        <label><input type="radio" name="show-grid" value="0">OFF</label>
+        <span>グリッド表示:</span>
+        <label><input type="radio" name="show-subdivided-grid" value="0" checked>細分割前</label>
+        <label><input type="radio" name="show-subdivided-grid" value="1">細分割後</label>
+      </div>
+      <div>
+        <label><span>色塗り半径:</span><input type="range" id="circle-radius" value="60" min="0" max="300"><span id="circle-radius-text"></span></label>
+      </div>
+      <div><span>色:</span>
         <label><input type="radio" name="color" value="0">黒</label>
-        <label><input type="radio" name="color" value="1" checked>青</label>
-        <label><input type="radio" name="color" value="2">赤</label>
+        <label><input type="radio" name="color" value="1">青</label>
+        <label><input type="radio" name="color" value="2" checked>赤</label>
         <label><input type="radio" name="color" value="3">紫</label>
         <label><input type="radio" name="color" value="4">緑</label>
         <label><input type="radio" name="color" value="5">水</label>
         <label><input type="radio" name="color" value="6">黄</label>
         <label><input type="radio" name="color" value="7">白</label>
       </div>
-      <div>変形効果:
+      <div><span>変形効果:</span>
         <label><input type="radio" name="modify-grid" value="1" checked>ON</label>
         <label><input type="radio" name="modify-grid" value="0">OFF</label>
       </div>
-      <div>グリッド表示:
-        <label><input type="radio" name="show-grid" value="1" checked>ON</label>
-        <label><input type="radio" name="show-grid" value="0">OFF</label>
-      </div>
-      <div id="log">
+      <div><span>入力座標:</span>
+        <span id="input-text"></span>
       </div>
     </div>
   </body>
