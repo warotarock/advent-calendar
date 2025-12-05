@@ -39,11 +39,16 @@
     .canvas-container {
       position: relative;
       display: inline-block;
-      background-image: url('transparent_medium.png');
       border-radius: 8px;
       overflow: hidden;
       width: 400px;
       height: 200px;
+      background-image :
+      repeating-linear-gradient(315deg,
+                                rgba(153, 153, 153, 1.00),
+                                rgba(153, 153, 153, 1.00) 5px,
+                                rgba(0, 0, 0, 0) 0,
+                                rgba(0, 0, 0, 0) 10px);
     }
 
     .canvas-text {
@@ -72,8 +77,11 @@
 </head>
 
 <body>
+  <nav>
+    <a href="https://qiita.com/advent-calendar/2022/webgraphics">Webグラフィックス Advent calendar 2025 5日目</a>
+  </nav>
   <h1>順序に依存しない重み付き色合成</h1>
-  <p>グラフィックス全般 Advent Calendar 2025 1日目 作者：柏崎ワロタロ</p>
+  <p>作成者：柏崎ワロタロ</p>
   <div class="methods-container">
     <div class="method-container" id="method-container1">
       <h2>ストレートアルファ（順序依存）</h2>

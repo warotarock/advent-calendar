@@ -27,7 +27,7 @@ function blendColors_StraightAlpha(colors: Color[], weights: number[]): Color {
 
 // 乗算済みアルファ合成
 function blendColors_PreMultipliedAlpha(colors: Color[], weights: number[]): Color {
-  let wsum = 0,
+  let wSum = 0,
     rSum = 0,
     gSum = 0,
     bSum = 0,
@@ -35,62 +35,62 @@ function blendColors_PreMultipliedAlpha(colors: Color[], weights: number[]): Col
   for (let i = 0; i < colors.length; i++) {
     const { r, g, b, a } = colors[i];
     const w = weights[i];
-    wsum += w;
+    wSum += w;
     rSum += w * r * a;
     gSum += w * g * a;
     bSum += w * b * a;
     aSum += w * a;
   }
-  if (wsum === 0) {
+  if (wSum === 0) {
     return new Color(0, 0, 0, 0);
   }
-  if (wsum < 1.0) {
-    wsum = 1.0; // ウェイトが1未満の場合、残り分の透明色が存在するとみなして補正する
+  if (wSum < 1.0) {
+    wSum = 1.0; // ウェイトが1未満の場合、残り分の透明色が存在するとみなして補正する
   }
-  let A = aSum / wsum;
+  let A = aSum / wSum;
   if (A === 0) {
     return new Color(0, 0, 0, 0);
   }
-  return new Color(rSum / (wsum * A), gSum / (wsum * A), bSum / (wsum * A), A);
+  return new Color(rSum / (wSum * A), gSum / (wSum * A), bSum / (wSum * A), A);
 }
 
-// OKLch空間での色合成
-function blendColors_OKLch(colors: Color[], weights: number[]): Color {
-  let wsum = 0,
-    Lsum = 0,
-    Csum = 0,
+// OKLCh色空間での色合成
+function blendColors_OKLCh(colors: Color[], weights: number[]): Color {
+  let wSum = 0,
+    lSum = 0,
+    cSum = 0,
     aSum = 0;
-  const hueVec = { x: 0, y: 0 };
+  const hVec = { x: 0, y: 0 };
   for (let i = 0; i < colors.length; i++) {
     const { r, g, b, a } = colors[i];
     const w = weights[i];
-    const [ L, C, h ] = chroma.rgb(r * 255, g * 255, b * 255).oklch();
-    wsum += w;
-    Lsum += w * L * a;
-    Csum += w * C * a;
+    const [ l, c, h ] = chroma.rgb(r * 255, g * 255, b * 255).oklch();
+    wSum += w;
+    lSum += w * l * a;
+    cSum += w * c * a;
     aSum += w * a;
     if (!isNaN(h)) {
-      hueVec.x += w * C * Math.cos(h / 180 * Math.PI) * a;
-      hueVec.y += w * C * Math.sin(h / 180 * Math.PI) * a;
+      hVec.x += w * c * Math.cos(h / 180 * Math.PI) * a;
+      hVec.y += w * c * Math.sin(h / 180 * Math.PI) * a;
     }
   }
-  if (wsum === 0) {
+  if (wSum === 0) {
     return new Color(0, 0, 0, 0);
   }
-  if (wsum < 1.0) {
-    wsum = 1.0; // ウェイトが1未満の場合、残り分の透明色が存在するとみなして補正する
+  if (wSum < 1.0) {
+    wSum = 1.0; // ウェイトが1未満の場合、残り分の透明色が存在するとみなして補正する
   }
-  let A = aSum / wsum;
+  let A = aSum / wSum;
   if (A === 0) {
     return new Color(0, 0, 0, 0);
   }
-  const L = Lsum / (wsum * A);
-  const C = Csum / (wsum * A);
-  let h = Math.atan2(hueVec.y, hueVec.x);
-  if (h < 0) {
-    h += Math.PI * 2;
+  const L = lSum / (wSum * A);
+  const C = cSum / (wSum * A);
+  let H = Math.atan2(hVec.y, hVec.x);
+  if (H < 0) {
+    H += Math.PI * 2;
   }
-  const [r, g, b] = chroma.oklch(L, C, h * 180 / Math.PI).rgb();
+  const [r, g, b] = chroma.oklch(L, C, H * 180 / Math.PI).rgb();
   return new Color(r / 255, g / 255, b / 255, A);
 }
 
@@ -182,7 +182,7 @@ function initializeMethodContainer(containerID: string, method: 'straight-alpha'
     } else if (method === 'premul-alpha') {
       blendedColor = blendColors_PreMultipliedAlpha(colors, weights);
     } else {
-      blendedColor = blendColors_OKLch(colors, weights);
+      blendedColor = blendColors_OKLCh(colors, weights);
     }
     updateCanvas(blendedColor, colors, weights, ctx, canvas);
   }
