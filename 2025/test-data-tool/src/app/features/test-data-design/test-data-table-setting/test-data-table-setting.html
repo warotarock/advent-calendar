@@ -1,0 +1,73 @@
+<div class="test-data-table-setting">
+  <!-- テーブル選択（常に表示、ノード未選択時は無効） -->
+  <div class="table-selection">
+    <select
+      [value]="focusedNode()?.tableName || ''"
+      [disabled]="!focusedNode()"
+      (change)="onTableChange($event)"
+      class="table-select"
+      title="テーブル選択"
+    >
+      <option value="">テーブルを選択してください</option>
+      @for (table of availableTables(); track table.name) {
+        <option [value]="table.name">{{ table.name }}</option>
+      }
+    </select>
+  </div>
+
+  <!-- 列設定エリア（ツールバーとヘッダは常に表示） -->
+  <div class="column-settings">
+    <div class="toolbar">
+      <button (click)="addColumnSetting()" [disabled]="!isAbleToAddColumnSetting()">追加</button>
+      <button (click)="duplicateColumnSetting()" [disabled]="!selectedColumnSetting()">複製</button>
+      <button (click)="moveColumnSettingUp()" [disabled]="!canMoveUp()">↑</button>
+      <button (click)="moveColumnSettingDown()" [disabled]="!canMoveDown()">↓</button>
+      <button (click)="deleteColumnSetting()" [disabled]="!selectedColumnSetting()" class="delete-button">削除</button>
+    </div>
+
+    <div class="grid-container">
+      <table appDataGrid>
+        <colgroup>
+          <col />
+          <col />
+          <col />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>列名</th>
+            <th>表示</th>
+            <th>初期値</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (setting of focusedNode()?.columnSettings || []; track setting.id; let rowIndex = $index) {
+            <tr [class.selected]="setting === selectedColumnSetting()">
+              <td>
+                <app-grid-select-cell
+                  appGridCell [row]="rowIndex" [column]="0"
+                  [cellValue]="getColumnNameCellValue(setting)"
+                  [config]="getCellConfig(rowIndex, 0)"
+                  [options]="getColumnNameOptions()">
+                </app-grid-select-cell>
+              </td>
+              <td>
+                <app-grid-checkbox-cell
+                  appGridCell [row]="rowIndex" [column]="1"
+                  [cellValue]="getVisibilityCellValue(setting)"
+                  [config]="getCellConfig(rowIndex, 1)">
+                </app-grid-checkbox-cell>
+              </td>
+              <td>
+                <app-grid-text-cell
+                  appGridCell [row]="rowIndex" [column]="2"
+                  [cellValue]="getDefaultValueCellValue(setting)"
+                  [config]="getCellConfig(rowIndex, 2)">
+                </app-grid-text-cell>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

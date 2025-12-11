@@ -1,0 +1,42 @@
+<div class="toolbar">
+  <button type="button" (click)="addColumn()">追加</button>
+  <button type="button" (click)="duplicateColumn()" [disabled]="!selectedColumn()">複製</button>
+  <button type="button" (click)="moveColumnUp()">↑</button>
+  <button type="button" (click)="moveColumnDown()">↓</button>
+  <button type="button" (click)="deleteColumn()" [disabled]="!selectedColumn()" class="delete-button">削除</button>
+</div>
+<div class="grid-container">
+  <table appDataGrid>
+    <colgroup>
+      <col />
+      <col />
+    </colgroup>
+    <thead>
+      <tr>
+        <th>列名</th>
+        <th>型</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (column of columns(); track column.name; let rowIndex = $index) {
+      <tr [class.selected]="column === selectedColumn()">
+        <td>
+          <app-grid-text-cell
+            appGridCell [row]="rowIndex" [column]="0"
+            [cellValue]="getNameCellValue(column)"
+            [config]="getCellConfig(rowIndex, 0)">
+          </app-grid-text-cell>
+        </td>
+        <td>
+          <app-grid-select-cell
+            appGridCell [row]="rowIndex" [column]="1"
+            [cellValue]="getTypeCellValue(column)"
+            [config]="getCellConfig(rowIndex, 1)"
+            [options]="columnTypes">
+          </app-grid-select-cell>
+        </td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>

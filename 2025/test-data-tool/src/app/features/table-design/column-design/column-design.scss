@@ -1,0 +1,90 @@
+:host {
+  display: block;
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  button {
+    padding: 0.1em 0.5em;
+  }
+
+  .delete-button {
+    margin-left: auto;
+  }
+}
+
+.grid-container {
+  flex-grow: 1;
+  overflow: auto;
+
+  table colgroup col {
+    width: 50%;
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+
+  &:focus {
+    outline: none;
+  }
+
+  th,
+  td {
+    position: relative;
+    box-sizing: border-box;
+    height: 32px;
+    border: 1px solid #ccc;
+    font-family: monospace;
+    padding: 0;
+    vertical-align: middle;
+    overflow: hidden;
+    white-space: nowrap;
+
+    // セルコンポーネントの内容が適切に表示されるよう調整
+    > * {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+  }
+
+  thead {
+    background-color: #f2f2f2;
+  }
+
+  tbody tr {
+    cursor: pointer;
+    font-family: monospace;
+    // 行レベルの選択状態とホバー効果は個別のセル選択に委譲
+  }
+
+  // Grid cell states - ensuring specificity
+  tbody th[appGridCell],
+  tbody td[appGridCell] {
+    outline: none;
+    transition: all 0.2s ease;
+
+    &.selected {
+      box-shadow: inset 0 0 0 1px #0066cc;
+    }
+
+    &.focused,
+    &.editing {
+      box-shadow: inset 0 0 0 2px #0066cc;
+    }
+
+    &:hover:not(.editing):not(.selected) {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+  }
+}

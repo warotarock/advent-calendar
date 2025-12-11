@@ -1,0 +1,39 @@
+<header class="header">
+  <div class="header__left">
+    <button class="hamburger-menu" title="Open menu" (click)="toggleDropdown()">
+      <span class="hamburger-menu__icon"></span>
+    </button>
+    @if (isDropdownOpen()) {
+      <app-dropdown-menu
+        (openProject)="openProjectDialog()"
+        (saveProject)="saveProject()"
+      />
+    }
+    <div class="save-indicator-container">
+      @if (isSaving()) {
+        <div class="saving-indicator">保存中...</div>
+      }
+      @if (showSaveComplete() && !fadingOut()) {
+        <div class="save-complete-indicator">保存完了</div>
+      }
+      @if (showSaveComplete() && fadingOut()) {
+        <div class="save-complete-indicator save-indicator-fade-out">保存完了</div>
+      }
+    </div>
+  </div>
+  <div class="project-name-container">
+    <input
+      #projectNameInput
+      [ngModel]="projectName()"
+      (blur)="saveProjectName(projectNameInput.value)"
+      (keydown.enter)="saveProjectName(projectNameInput.value)"
+      title="Project Name"
+      placeholder="無題のプロジェクト"
+    />
+  </div>
+  <div class="header__right"></div>
+</header>
+
+@if (isProjectDialogOpen()) {
+  <app-project-dialog (close)="closeProjectDialog()" />
+}

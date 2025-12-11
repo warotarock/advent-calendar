@@ -1,0 +1,51 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  button {
+    padding: 0.1em 0.5em;
+  }
+}
+
+.test-data-design-list {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  flex: 1;
+  overflow-y: auto;
+
+  .test-data-item {
+    padding: 0.5em;
+    cursor: pointer;
+    font-family: monospace;
+    border-bottom: 1px solid #eee;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &.selected {
+      background-color: #d8eafc;
+    }
+
+    &:hover {
+      background-color: #f0f0f0;
+    }
+
+    span {
+      display: block;
+      width: 100%;
+      cursor: pointer;
+
+      &:hover {
+        background-color: rgba(0, 123, 255, 0.1);
+        border-radius: 2px;
+      }
+    }
+  }
+}

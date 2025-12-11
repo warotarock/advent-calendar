@@ -1,0 +1,46 @@
+:host {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100vh;
+  width: 100vw;
+}
+
+.main {
+  display: flex;
+  width: 100%;
+}
+
+.left-pane {
+  box-sizing: border-box;
+  flex: 0 0 20%;
+  min-width: 100px;
+  overflow: auto;
+  padding: 0 1rem 0 1rem;
+  border: 1px solid #ccc;
+  border-left: none;
+  border-bottom: none;
+}
+
+.right-pane {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-width: 100px;
+  overflow: auto;
+  padding: 0 1rem 0 1rem;
+  border: 1px solid #ccc;
+  border-right: none;
+  border-bottom: none;
+  display: flex;
+}
+
+.splitter {
+  flex: 0 0 9px;
+  cursor: col-resize;
+
+  .bar {
+    width: 3px;
+    margin: 0 3px;
+    height: 100%;
+    pointer-events: none;
+  }
+}

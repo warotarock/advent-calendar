@@ -1,0 +1,21 @@
+<div class="toolbar">
+  <button (click)="addTestData()">追加</button>
+  <button (click)="deleteTestData()" [disabled]="!selectedTestDataDesign">削除</button>
+  <button (click)="renameTestData()" [disabled]="!selectedTestDataDesign">名前の変更</button>
+  <button (click)="duplicateTestData()" [disabled]="!selectedTestDataDesign">複製</button>
+</div>
+<div class="test-data-design-list">
+  @for (testData of testDataDesigns(); track testData.name) {
+    <div
+      class="test-data-item"
+      [class.selected]="testData.name === selectedTestDataDesign?.name"
+      (click)="selectTestData(testData)"
+    >
+      <span
+        [editableText]="testData.name"
+        (editableTextChange)="onTestDataNameChange(testData, $event)"
+        title="ダブルクリックで編集"
+      >{{ testData.name }}</span>
+    </div>
+  }
+</div>

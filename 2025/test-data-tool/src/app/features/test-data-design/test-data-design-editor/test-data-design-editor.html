@@ -1,0 +1,161 @@
+<div class="test-data-design-editor">
+  <div class="toolbar">
+    <button type="button" (click)="addTree()">追加</button>
+    <button type="button" (click)="moveSelectedTreesUp()">↑</button>
+    <button type="button" (click)="moveSelectedTreesDown()">↓</button>
+    <button type="button" (click)="addNode()">ノード追加</button>
+    <button type="button" (click)="addRecord()" [disabled]="!canAddRecord()">レコード追加</button>
+    <button type="button" class="delete-button" (click)="deleteSelectedTrees()">削除</button>
+  </div>
+
+  <div class="editor-content">
+    @if (testDataDesign().note) {
+      <p class="design-note">備考: {{ testDataDesign().note }}</p>
+    }
+
+    <div class="test-data-display">
+      @if (displayTestDataTrees().length === 0) {
+        <div class="empty-state">
+          <p>テストデータツリーがありません</p>
+        </div>
+      } @else {
+        <div class="trees-container">
+          @for (displayTree of displayTestDataTrees(); track displayTree.original.id) {
+            <div
+              class="tree-item"
+              [class.active]="isTreeActive(displayTree.original)"
+              [class.focused]="isTreeFocused(displayTree.original)"
+            >
+              <div
+                class="tree-header"
+                (click)="onTreeClick(displayTree.original, $event)"
+              >
+                <app-checkbox
+                  [checkboxId]="'tree-checkbox-' + displayTree.original.name"
+                  [label]="'ツリー選択: ' + displayTree.original.name"
+                  [value]="getTreeSelected(displayTree.original)"
+                  (change)="onTreeSelectionChange(displayTree.original, $event)"
+                  (click)="$event.stopPropagation()"
+                  title="アイテム選択"
+                />
+                <app-collapse-toggle
+                  [expanded]="isTreeExpanded(displayTree.original)"
+                  (toggleChange)="onTreeToggle(displayTree.original)"
+                  (click)="$event.stopPropagation()"
+                />
+                <span
+                  class="tree-name"
+                  [editableText]="displayTree.original.name"
+                  (editableTextChange)="onTreeNameChange(displayTree.original, $event)"
+                  title="ダブルクリックで編集"
+                >{{ displayTree.original.name }}</span>
+                @if (displayTree.original.note) {
+                  <span class="tree-note">({{ displayTree.original.note }})</span>
+                }
+              </div>
+
+              @if (isTreeExpanded(displayTree.original)) {
+                @if (displayTree.nodes.length === 0) {
+                  <div class="no-nodes">ノードなし</div>
+                } @else {
+                  <div class="nodes-container">
+                    @for (displayNode of displayTree.nodes; track displayNode.original.id) {
+                      <div
+                        class="node-item"
+                        [class.active]="isNodeActive(displayNode.original)"
+                        [class.focused]="isNodeFocused(displayNode.original)"
+                      >
+                        <div
+                          class="node-header"
+                          (click)="onNodeClick(displayNode.original, displayTree.original, $event)"
+                        >
+                          <app-checkbox
+                            [checkboxId]="'node-checkbox-' + displayNode.original.id"
+                            [label]="'ノード選択: ' + displayNode.original.name"
+                            [value]="getNodeSelected(displayNode.original)"
+                            (change)="onNodeSelectionChange(displayNode.original, $event)"
+                            (click)="$event.stopPropagation()"
+                            title="アイテム選択"
+                          />
+                          <app-collapse-toggle
+                            [expanded]="isNodeExpanded(displayNode.original)"
+                            (toggleChange)="onNodeToggle(displayNode.original, displayTree.original)"
+                            (click)="$event.stopPropagation()"
+                          />
+                          <span
+                            class="node-indent"
+                            [style.margin-left.px]="displayNode.indentLevel * 20"
+                          ></span>
+                          <span
+                            class="node-name"
+                            [editableText]="displayNode.original.name"
+                            (editableTextChange)="onNodeNameChange(displayNode.original, $event)"
+                            title="ダブルクリックで編集"
+                          >{{ displayNode.original.name || 'テーブル未選択' }}</span>
+                          @if (displayNode.original.note) {
+                            <span class="node-note">({{ displayNode.original.note }})</span>
+                          }
+                        </div>
+
+                        <!-- レコード表示 -->
+                        @if (isNodeExpanded(displayNode.original)) {
+                          @if (displayNode.original.records.length === 0) {
+                            <div class="no-records" [style.margin-left.px]="getRecordIndentPx(displayNode.indentLevel)">
+                              レコードなし
+                            </div>
+                          } @else {
+                            <div class="records-container" [style.margin-left.px]="getRecordIndentPx(displayNode.indentLevel)">
+                              <table class="records-grid">
+                                <thead>
+                                  <tr>
+                                    <th class="checkbox-header"></th>
+                                    @for (columnSetting of getVisibleColumnSettings(displayNode.original); track columnSetting.id) {
+                                      <th>{{ columnSetting.columnName }}</th>
+                                    }
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  @for (record of displayNode.original.records; track record.id; let recordIndex = $index) {
+                                    <tr
+                                      [class.selected]="record.isSelected"
+                                      [class.focused]="isRecordFocused(record)"
+                                      (click)="onRecordClick(record, displayNode.original, $event)"
+                                    >
+                                      <td class="checkbox-cell">
+                                        <app-checkbox
+                                          [checkboxId]="'record-checkbox-' + record.id"
+                                          [label]="'レコード選択: ' + recordIndex"
+                                          [value]="record.isSelected"
+                                          (change)="onRecordSelectionChange(record, $event)"
+                                          (click)="$event.stopPropagation()"
+                                          title="レコード選択"
+                                        />
+                                      </td>
+                                      @for (columnSetting of getVisibleColumnSettings(displayNode.original); track columnSetting.id) {
+                                        <td
+                                          class="field-cell"
+                                          [class.selected-cell]="isFieldCellSelected(record, columnSetting.columnName)"
+                                          (click)="onFieldCellClick(record, columnSetting.columnName, displayNode.original, $event)"
+                                        >
+                                          {{ getFieldValueDisplay(record, columnSetting.columnName) }}
+                                        </td>
+                                      }
+                                    </tr>
+                                  }
+                                </tbody>
+                              </table>
+                            </div>
+                          }
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

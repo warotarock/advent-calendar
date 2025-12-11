@@ -1,0 +1,21 @@
+<div class="dialog-backdrop" (click)="close.emit()">
+  <div class="dialog-container" (click)="$event.stopPropagation()">
+    <header class="dialog-header">
+      <h2>プロジェクトを開く</h2>
+      <div class="toolbar">
+        <button (click)="addProject()">追加</button>
+        <button (click)="deleteProject(currentProject()?.id)" [disabled]="!currentProject()">削除</button>
+      </div>
+    </header>
+    <div class="dialog-content">
+      <ul>@for (project of projects(); track project.id) {
+          <li (click)="selectProject(project)" [class.selected]="project.id === currentProject()?.id">
+            {{ project.name }}
+          </li>
+        }</ul>
+    </div>
+    <footer class="dialog-footer">
+      <button (click)="close.emit()">閉じる</button>
+    </footer>
+  </div>
+</div>

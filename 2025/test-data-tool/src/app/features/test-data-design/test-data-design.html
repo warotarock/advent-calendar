@@ -1,0 +1,26 @@
+<div class="test-data-design-container">
+  <div class="left-pane">
+    <div class="test-data-design-list-section">
+      <h2>テストデータ設計一覧</h2>
+      <app-test-data-design-list
+        [testDataDesigns]="testDataDesigns()"
+      ></app-test-data-design-list>
+    </div>
+
+    <div class="test-data-table-setting-section">
+      <!-- テストデータテーブル設定 -->
+      <h2>ノード設定</h2>
+      <app-test-data-table-setting></app-test-data-table-setting>
+    </div>
+  </div>
+
+  <div class="right-pane">
+    @if (selectedTestDataDesign) {
+      <app-test-data-design-editor [testDataDesign]="selectedTestDataDesign" />
+    } @else {
+      <div class="no-selection">
+        <p>テストデータ設計を選択してください</p>
+      </div>
+    }
+  </div>
+</div>

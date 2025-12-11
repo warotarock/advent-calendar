@@ -1,0 +1,10 @@
+<div class="table-list-panel">
+  <h2>テーブル一覧</h2>
+  <app-table-list
+    [tableDesigns]="tableDesigns()"
+  ></app-table-list>
+</div>
+<div class="column-design-panel">
+  <h2>カラム設計</h2>
+  <app-column-design [table]="selectedTable"></app-column-design>
+</div>

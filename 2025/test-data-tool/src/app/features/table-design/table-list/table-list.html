@@ -1,0 +1,21 @@
+<div class="toolbar">
+  <button (click)="addTable()">追加</button>
+  <button (click)="renameTable()" [disabled]="!selectedTable">名前の変更</button>
+  <button (click)="duplicateTable()" [disabled]="!selectedTable">複製</button>
+  <button (click)="deleteTable()" [disabled]="!selectedTable" class="delete-button">削除</button>
+</div>
+<div class="table-list">
+  @for (table of tableDesigns(); track table.name) {
+    <div
+      class="table-item"
+      [class.selected]="table.name === selectedTable?.name"
+      (click)="selectTable(table)"
+    >
+      <span
+        [editableText]="table.name"
+        (editableTextChange)="onTableNameChange(table, $event)"
+        title="ダブルクリックで編集"
+      >{{ table.name }}</span>
+    </div>
+  }
+</div>

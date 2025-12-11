@@ -1,0 +1,85 @@
+:host {
+  flex-grow: 1;
+  display: flex;
+}
+
+.test-data-design-container {
+  display: flex;
+  flex: 1;
+}
+
+.left-pane {
+  flex: 0 0 300px;
+  min-width: 250px;
+  max-width: 500px;
+  border-right: 1px solid #ddd;
+  padding-right: 1rem;
+  display: grid;
+  grid-template-rows: 250px 1fr;
+  gap: 1rem;
+
+  .test-data-design-list-section {
+    display: flex;
+    flex-direction: column;
+    min-height: 0; // flexアイテムでのoverflow対応
+
+    app-test-data-design-list {
+      flex: 1;
+      min-height: 0;
+    }
+  }
+
+  .test-data-table-setting-section {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+
+    app-test-data-table-setting {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+    }
+  }
+}
+
+.right-pane {
+  flex: 1;
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+
+  app-test-data-design-editor {
+    flex: 1;
+    display: flex;
+  }
+}
+
+.editor-content {
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #fafafa;
+  min-height: 400px;
+
+  p {
+    margin: 0 0 1rem 0;
+    font-weight: 500;
+    color: #666;
+  }
+}
+
+.no-selection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  border: 2px dashed #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+
+  p {
+    margin: 0;
+    color: #999;
+    font-style: italic;
+  }
+}
